@@ -61,14 +61,25 @@ class PromptToProductSchema:
         """Parse a natural language prompt to determine the action and extract details."""
         prompt_lower = prompt.lower()
         
+        # Check for banking domain keywords first
+        banking_context = self._detect_banking_context(prompt_lower)
+        
         # Determine action type - check for explicit keywords first
         action = None
         if any(keyword in prompt_lower for keyword in ["create epic", "new epic", "add epic"]):
             action = "create_epic"
         elif any(keyword in prompt_lower for keyword in ["create feature", "new feature", "add feature", "feature for", "feature to"]):
-            action = "create_feature"
+            # Check if it's banking-specific
+            if banking_context["is_banking"]:
+                action = "create_banking_feature"
+            else:
+                action = "create_feature"
         elif any(keyword in prompt_lower for keyword in ["create story", "new story", "add story", "story for", "story to"]):
-            action = "create_story"
+            # Check if it's compliance-focused
+            if banking_context["is_compliance"]:
+                action = "create_compliance_story"
+            else:
+                action = "create_story"
         elif any(keyword in prompt_lower for keyword in ["update", "modify", "change"]):
             action = "update_spec"
         elif any(keyword in prompt_lower for keyword in ["validate", "check", "verify"]):
@@ -76,7 +87,14 @@ class PromptToProductSchema:
         
         # If no explicit action found, infer from context
         if not action:
-            if "under epic" in prompt_lower or "epic e" in prompt_lower:
+            if banking_context["is_banking"]:
+                if "under epic" in prompt_lower or "epic e" in prompt_lower:
+                    action = "create_banking_feature"
+                elif banking_context["is_compliance"]:
+                    action = "create_compliance_story"
+                else:
+                    action = "create_banking_feature"  # Default for banking context
+            elif "under epic" in prompt_lower or "epic e" in prompt_lower:
                 action = "create_feature"  # If mentioning epic, likely creating feature
             elif "under feature" in prompt_lower or "feature f" in prompt_lower:
                 action = "create_story"  # If mentioning feature, likely creating story
@@ -90,18 +108,56 @@ class PromptToProductSchema:
         return {
             "action": action,
             "original_prompt": prompt,
-            "extracted_info": self._extract_info_from_prompt(prompt, action)
+            "banking_context": banking_context,
+            "extracted_info": self._extract_info_from_prompt(prompt, action, banking_context)
         }
     
-    def _extract_info_from_prompt(self, prompt: str, action: str) -> Dict[str, Any]:
+    def _detect_banking_context(self, prompt_lower: str) -> Dict[str, Any]:
+        """Detect banking domain context and product types from prompt."""
+        banking_domain = self.schema.get("banking_domain", {})
+        product_types = banking_domain.get("product_types", {})
+        compliance_areas = banking_domain.get("compliance_areas", {})
+        
+        context = {
+            "is_banking": False,
+            "is_compliance": False,
+            "product_types": [],
+            "compliance_requirements": [],
+            "technologies": []
+        }
+        
+        # Check for banking product types
+        for product_type, config in product_types.items():
+            keywords = config.get("keywords", [])
+            if any(keyword in prompt_lower for keyword in keywords):
+                context["is_banking"] = True
+                context["product_types"].append(product_type)
+        
+        # Check for compliance keywords
+        regulatory = compliance_areas.get("regulatory", [])
+        if any(reg.lower() in prompt_lower for reg in regulatory):
+            context["is_compliance"] = True
+            context["compliance_requirements"].extend([reg for reg in regulatory if reg.lower() in prompt_lower])
+        
+        # Check for security keywords
+        security = compliance_areas.get("security", [])
+        if any(sec.lower() in prompt_lower for sec in security):
+            context["is_banking"] = True
+            context["technologies"].extend([sec for sec in security if sec.lower() in prompt_lower])
+        
+        return context
+    
+    def _extract_info_from_prompt(self, prompt: str, action: str, banking_context: Dict[str, Any] = None) -> Dict[str, Any]:
         """Extract structured information from the prompt based on the action type."""
         info = {}
+        banking_context = banking_context or {}
         
         # Extract title/goal from prompt
         title_patterns = [
-            r"create (?:an? )?(?:epic|feature|story) (?:for |to )?(.+?)(?:\s+under|\s+in|\s*$)",
-            r"add (?:an? )?(?:epic|feature|story) (?:for |to )?(.+?)(?:\s+under|\s+in|\s*$)",
-            r"(?:epic|feature|story) (?:for |to )?(.+?)(?:\s+under|\s+in|\s*$)"
+            r"create (?:an? )?(?:epic|feature|story|banking feature) (?:for |to )?(.+?)(?:\s+under|\s+in|\s*$)",
+            r"add (?:an? )?(?:epic|feature|story|banking feature) (?:for |to )?(.+?)(?:\s+under|\s+in|\s*$)",
+            r"(?:epic|feature|story) (?:for |to )?(.+?)(?:\s+under|\s+in|\s*$)",
+            r"build (?:a |an )?(?:system|feature) (?:for |to )?(.+?)(?:\s+under|\s+in|\s*$)"
         ]
         
         for pattern in title_patterns:
@@ -124,6 +180,18 @@ class PromptToProductSchema:
             tech_match = re.search(r"using\s+(.+?)(?:\s*$|\.|,)", prompt, re.IGNORECASE)
             if tech_match:
                 info["technology"] = tech_match.group(1).strip()
+        
+        # Add banking-specific information
+        if banking_context.get("is_banking"):
+            info["banking_context"] = banking_context
+            info["product_types"] = banking_context.get("product_types", [])
+            
+            # Determine primary product type
+            if banking_context["product_types"]:
+                info["primary_product_type"] = banking_context["product_types"][0]
+        
+        if banking_context.get("is_compliance"):
+            info["compliance_requirements"] = banking_context.get("compliance_requirements", [])
         
         return info
     
@@ -149,6 +217,184 @@ class PromptToProductSchema:
 - Define measurable success criteria
 - Include user impact metrics
 - Specify completion conditions
+
+### Created
+Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via PromptToProduct Schema
+
+"""
+        
+        with open(filepath, 'w') as f:
+            f.write(content)
+        
+        return str(filepath)
+    
+    def create_banking_feature(self, title: str, epic_id: str = None, product_type: str = None, 
+                             compliance_requirements: List[str] = None, goal: str = None) -> str:
+        """Create a new banking-specific feature specification."""
+        feature_id = self.get_next_id("feature")
+        filename = f"{feature_id}-{self._slugify(title)}.md"
+        filepath = self.specs_dir / "features" / filename
+        
+        # Ensure features directory exists
+        filepath.parent.mkdir(exist_ok=True)
+        
+        # Format compliance requirements
+        compliance_text = ""
+        if compliance_requirements:
+            compliance_text = f"""
+### Regulatory Requirements
+{chr(10).join([f"- {req}" for req in compliance_requirements])}"""
+        
+        # Format product type section
+        product_section = ""
+        if product_type:
+            product_section = f"""
+### Banking Product Type
+**{product_type.title()}**"""
+        
+        content = f"""# Banking Feature: {title}
+**ID:** {feature_id}  
+**Epic:** {epic_id or "TBD"}  
+**Product Type:** {product_type or "TBD"}  
+**Linked Stories:** TBD  
+{product_section}
+
+### Goal
+{goal or title}
+
+### Business Value
+- Define business impact and value proposition
+- Specify customer experience improvements
+- Include revenue or cost optimization goals
+
+### Technical Requirements
+- Define technical specifications and architecture
+- List integration requirements with core banking systems
+- Specify performance and scalability criteria
+- Include security and data protection requirements
+
+### Security Requirements
+- Authentication and authorization mechanisms
+- Data encryption and tokenization requirements
+- Fraud prevention and monitoring capabilities
+- Audit trail and logging specifications
+{compliance_text}
+
+### Integration Points
+- Core banking system interfaces
+- Third-party service integrations
+- API specifications and data formats
+- Real-time vs batch processing requirements
+
+### Acceptance Criteria
+- Define feature completion criteria
+- Include user acceptance tests
+- Specify quality gates and performance benchmarks
+- List compliance validation requirements
+
+### Created
+Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via PromptToProduct Banking Schema
+
+"""
+        
+        with open(filepath, 'w') as f:
+            f.write(content)
+        
+        return str(filepath)
+    
+    def create_compliance_story(self, title: str, feature_id: str = None, 
+                              regulation: str = None, compliance_requirements: List[str] = None) -> str:
+        """Create a new compliance-focused story specification."""
+        story_id = self.get_next_id("story")
+        filename = f"{story_id}-{self._slugify(title)}.md"
+        filepath = self.specs_dir / "stories" / filename
+        
+        # Ensure stories directory exists
+        filepath.parent.mkdir(exist_ok=True)
+        
+        requirements = compliance_requirements or ["Define compliance requirements"]
+        requirements_text = "\n".join([f"- {req}" for req in requirements])
+        
+        content = f"""# Compliance Story: {title}
+**ID:** {story_id}  
+**Feature:** {feature_id or "TBD"}  
+**Regulation:** {regulation or "TBD"}  
+
+### Regulatory Context
+This story ensures compliance with {regulation or "applicable regulations"} requirements for banking operations.
+
+### Compliance Requirements
+{requirements_text}
+
+### Acceptance Criteria
+- All regulatory requirements are implemented and tested
+- Audit trail captures all required information
+- Compliance reporting functionality is operational
+- Risk controls are properly configured and monitored
+
+### Audit & Logging Requirements
+- Transaction logging with immutable audit trail
+- User action tracking and accountability
+- Compliance event monitoring and alerting
+- Regulatory reporting data capture
+
+### Testing Requirements
+- Compliance validation testing
+- Regulatory scenario testing
+- Audit trail verification
+- Risk control effectiveness testing
+
+### Documentation Requirements
+- Compliance control documentation
+- Risk assessment documentation
+- Audit procedure documentation
+- Regulatory mapping documentation
+
+### Definition of Done
+- Code is implemented and tested
+- Compliance controls are verified
+- Audit capabilities are functional
+- Documentation is complete and approved
+- Regulatory sign-off obtained
+
+### Created
+Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via PromptToProduct Banking Schema
+
+"""
+        
+        with open(filepath, 'w') as f:
+            f.write(content)
+        
+        return str(filepath)
+    
+    def create_story(self, title: str, feature_id: str = None, acceptance_criteria: List[str] = None) -> str:
+        """Create a new story specification."""
+        story_id = self.get_next_id("story")
+        filename = f"{story_id}-{self._slugify(title)}.md"
+        filepath = self.specs_dir / "stories" / filename
+        
+        # Ensure stories directory exists
+        filepath.parent.mkdir(exist_ok=True)
+        
+        criteria = acceptance_criteria or ["Define acceptance criteria"]
+        criteria_text = "\n".join([f"- {criterion}" for criterion in criteria])
+        
+        content = f"""# Story: {title}
+**ID:** {story_id}  
+**Feature:** {feature_id or "TBD"}  
+
+### Acceptance Criteria
+{criteria_text}
+
+### Tasks
+1. Define implementation steps
+2. Add technical tasks
+3. Include testing requirements
+
+### Definition of Done
+- Code is implemented and tested
+- Documentation is updated
+- Feature is deployed and verified
 
 ### Created
 Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via PromptToProduct Schema
@@ -197,54 +443,17 @@ Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via PromptToProduct 
         
         return str(filepath)
     
-    def create_story(self, title: str, feature_id: str = None, acceptance_criteria: List[str] = None) -> str:
-        """Create a new story specification."""
-        story_id = self.get_next_id("story")
-        filename = f"{story_id}-{self._slugify(title)}.md"
-        filepath = self.specs_dir / "stories" / filename
-        
-        # Ensure stories directory exists
-        filepath.parent.mkdir(exist_ok=True)
-        
-        criteria = acceptance_criteria or ["Define acceptance criteria"]
-        criteria_text = "\n".join([f"- {criterion}" for criterion in criteria])
-        
-        content = f"""# Story: {title}
-**ID:** {story_id}  
-**Feature:** {feature_id or "TBD"}  
-
-### Acceptance Criteria
-{criteria_text}
-
-### Tasks
-1. Define implementation steps
-2. Add technical tasks
-3. Include testing requirements
-
-### Definition of Done
-- Code is implemented and tested
-- Documentation is updated
-- Feature is deployed and verified
-
-### Created
-Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via PromptToProduct Schema
-
-"""
-        
-        with open(filepath, 'w') as f:
-            f.write(content)
-        
-        return str(filepath)
-    
     def process_prompt(self, prompt: str) -> Dict[str, Any]:
         """Main method to process a natural language prompt."""
         parsed = self.parse_prompt(prompt)
         action = parsed["action"]
         info = parsed["extracted_info"]
+        banking_context = parsed.get("banking_context", {})
         
         result = {
             "action": action,
             "prompt": prompt,
+            "banking_context": banking_context,
             "success": False,
             "file_created": None,
             "error": None
@@ -257,12 +466,46 @@ Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via PromptToProduct 
                 result["success"] = True
                 result["file_created"] = filepath
                 
+            elif action == "create_banking_feature":
+                title = info.get("title", "New Banking Feature")
+                epic_id = info.get("parent_epic")
+                product_type = info.get("primary_product_type", "").title() if info.get("primary_product_type") else None
+                compliance_reqs = info.get("compliance_requirements", [])
+                goal = info.get("title", title)
+                
+                filepath = self.create_banking_feature(
+                    title=title,
+                    epic_id=epic_id,
+                    product_type=product_type,
+                    compliance_requirements=compliance_reqs,
+                    goal=goal
+                )
+                result["success"] = True
+                result["file_created"] = filepath
+                result["product_type"] = product_type
+                
             elif action == "create_feature":
                 title = info.get("title", "New Feature")
                 epic_id = info.get("parent_epic")
                 filepath = self.create_feature(title, epic_id)
                 result["success"] = True
                 result["file_created"] = filepath
+                
+            elif action == "create_compliance_story":
+                title = info.get("title", "New Compliance Story")
+                feature_id = info.get("parent_feature")
+                compliance_reqs = info.get("compliance_requirements", [])
+                regulation = compliance_reqs[0] if compliance_reqs else None
+                
+                filepath = self.create_compliance_story(
+                    title=title,
+                    feature_id=feature_id,
+                    regulation=regulation,
+                    compliance_requirements=compliance_reqs
+                )
+                result["success"] = True
+                result["file_created"] = filepath
+                result["regulation"] = regulation
                 
             elif action == "create_story":
                 title = info.get("title", "New Story")

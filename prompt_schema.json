@@ -1,19 +1,91 @@
 {
   "name": "PromptToProduct Schema",
-  "version": "1.0",
-  "description": "Schema for interpreting developer prompts and mapping them to spec-driven actions.",
+  "version": "2.0",
+  "description": "Schema for interpreting developer prompts and mapping them to spec-driven actions with banking domain intelligence.",
+  "banking_domain": {
+    "product_types": {
+      "loans": {
+        "keywords": ["loan", "lending", "mortgage", "credit", "financing", "borrowing", "underwriting", "loan origination", "debt"],
+        "examples": ["home loan", "personal loan", "auto loan", "business loan", "mortgage", "line of credit"],
+        "common_features": ["eligibility scoring", "risk assessment", "automated underwriting", "payment processing", "collections", "loan servicing"]
+      },
+      "credit_cards": {
+        "keywords": ["credit card", "card", "plastic", "charge card", "rewards", "cashback", "points", "credit limit"],
+        "examples": ["visa credit card", "mastercard", "rewards card", "secured card", "corporate card"],
+        "common_features": ["fraud detection", "transaction processing", "rewards management", "billing", "mobile payments", "contactless"]
+      },
+      "payments": {
+        "keywords": ["payment", "transfer", "wire", "ach", "settlement", "clearing", "transaction", "remittance", "p2p", "bill pay"],
+        "examples": ["money transfer", "bill payment", "peer-to-peer", "wire transfer", "mobile payments", "digital wallet"],
+        "common_features": ["real-time processing", "fraud prevention", "transaction monitoring", "compliance", "multi-currency", "API integration"]
+      },
+      "investments": {
+        "keywords": ["investment", "portfolio", "trading", "stocks", "bonds", "funds", "wealth", "advisory", "robo-advisor", "etf"],
+        "examples": ["portfolio management", "robo advisor", "trading platform", "wealth management", "retirement planning"],
+        "common_features": ["portfolio analytics", "risk profiling", "automated rebalancing", "market data integration", "compliance reporting"]
+      },
+      "accounts": {
+        "keywords": ["account", "savings", "checking", "deposit", "balance", "statement", "transaction history", "overdraft"],
+        "examples": ["savings account", "checking account", "certificate of deposit", "money market account"],
+        "common_features": ["account opening", "balance inquiry", "transaction history", "statement generation", "interest calculation"]
+      },
+      "digital_banking": {
+        "keywords": ["mobile app", "online banking", "digital", "fintech", "api", "open banking", "microservices", "cloud"],
+        "examples": ["mobile banking app", "online platform", "api gateway", "customer portal", "digital onboarding"],
+        "common_features": ["user authentication", "session management", "push notifications", "biometric login", "responsive design"]
+      }
+    },
+    "compliance_areas": {
+      "regulatory": ["KYC", "AML", "SOX", "GDPR", "PCI-DSS", "Basel III", "Dodd-Frank", "FFIEC"],
+      "security": ["encryption", "tokenization", "fraud detection", "identity verification", "secure communications"],
+      "risk_management": ["credit risk", "operational risk", "market risk", "liquidity risk", "stress testing"]
+    },
+    "technology_stack": {
+      "core_banking": ["mainframe", "batch processing", "real-time", "transaction processing", "ledger systems"],
+      "integration": ["API gateway", "message queues", "event streaming", "microservices", "service mesh"],
+      "data_analytics": ["data lake", "machine learning", "predictive analytics", "business intelligence", "reporting"],
+      "cloud_infrastructure": ["containerization", "kubernetes", "serverless", "auto-scaling", "disaster recovery"]
+    }
+  },
   "actions": {
     "create_epic": {
       "description": "Creates a new Epic markdown file under specs/epics/",
-      "example_prompt": "Create an epic for enabling cross-agent communication",
+      "example_prompt": "Create an epic for digital transformation of loan origination",
+      "banking_examples": [
+        "Create an epic for next-generation credit card platform",
+        "Add an epic for real-time payments infrastructure",
+        "Create an epic for AI-powered investment advisory platform"
+      ],
       "fields": {
         "id": "E###",
         "title": "Epic title",
         "objective": "Goal of the epic",
         "owner": "Person responsible",
-        "linked_features": [
-          "F###"
-        ]
+        "banking_domain": "Loans|Cards|Payments|Investments|Accounts|Digital",
+        "compliance_requirements": ["KYC", "AML", "PCI-DSS"],
+        "linked_features": ["F###"]
+      }
+    },
+    "create_banking_feature": {
+      "description": "Creates a banking-specific feature with domain intelligence and compliance considerations.",
+      "example_prompt": "Add a feature for real-time fraud detection in credit card transactions",
+      "banking_examples": [
+        "Create a feature for automated loan underwriting using AI",
+        "Add a feature for contactless payment processing",
+        "Create a feature for robo-advisor portfolio rebalancing",
+        "Add a feature for mobile check deposit",
+        "Create a feature for real-time account balance updates"
+      ],
+      "fields": {
+        "id": "F###",
+        "epic": "E###",
+        "product_type": "Loans|CreditCards|Payments|Investments|Accounts|Digital",
+        "goal": "Banking-specific business goal",
+        "regulatory_requirements": ["List applicable regulations"],
+        "security_requirements": ["Encryption", "Authentication", "Authorization"],
+        "integration_points": ["Core banking", "Third-party services", "APIs"],
+        "linked_stories": ["S###"],
+        "technical_requirements": "Technology stack and architecture details"
       }
     },
     "create_feature": {
@@ -23,35 +95,94 @@
         "id": "F###",
         "epic": "E###",
         "goal": "Goal of the feature",
-        "linked_stories": [
-          "S###"
-        ],
+        "linked_stories": ["S###"],
         "technical_requirements": "Detailed tech spec"
       }
     },
     "create_story": {
       "description": "Creates a new Story markdown file linked to a Feature.",
-      "example_prompt": "Add a story to set up prompt validation under Feature F001",
+      "example_prompt": "Add a story to implement transaction monitoring under Feature F001",
+      "banking_examples": [
+        "Create a story for KYC document verification API",
+        "Add a story for credit score integration",
+        "Create a story for payment gateway configuration",
+        "Add a story for portfolio risk calculation engine"
+      ],
       "fields": {
         "id": "S###",
         "feature": "F###",
-        "acceptance_criteria": [
-          "Criteria 1",
-          "Criteria 2"
-        ],
-        "tasks": [
-          "Step 1",
-          "Step 2"
-        ]
+        "acceptance_criteria": ["Banking-specific criteria"],
+        "compliance_checks": ["Required compliance validations"],
+        "security_tests": ["Security testing requirements"],
+        "integration_tests": ["Third-party integration tests"],
+        "tasks": ["Implementation steps"]
+      }
+    },
+    "create_compliance_story": {
+      "description": "Creates a compliance-focused story for regulatory requirements.",
+      "example_prompt": "Create a compliance story for AML transaction monitoring under Feature F001",
+      "banking_examples": [
+        "Add a compliance story for KYC customer onboarding",
+        "Create a story for PCI-DSS payment data encryption",
+        "Add a story for SOX financial reporting controls"
+      ],
+      "fields": {
+        "id": "S###",
+        "feature": "F###",
+        "regulation": "KYC|AML|PCI-DSS|SOX|GDPR|Basel III",
+        "compliance_requirements": ["Specific regulatory requirements"],
+        "audit_trail": ["Required audit and logging"],
+        "acceptance_criteria": ["Compliance validation criteria"],
+        "tasks": ["Implementation and testing steps"]
       }
     },
     "update_spec": {
       "description": "Updates an existing spec (epic/feature/story) with new content or links.",
-      "example_prompt": "Update feature F001 to include data lineage tracking"
+      "example_prompt": "Update feature F001 to include real-time transaction processing"
     },
     "validate_links": {
       "description": "Validates hierarchical linkage across specs.",
-      "example_prompt": "Check if all stories are linked to a valid feature"
+      "example_prompt": "Check if all banking features comply with regulatory requirements"
+    },
+    "map_banking_intent": {
+      "description": "Maps natural language banking requests to appropriate product types and features.",
+      "example_prompt": "I need to build a system for processing mortgage applications",
+      "mapping_logic": {
+        "loan_keywords": "→ create_banking_feature with product_type=Loans",
+        "payment_keywords": "→ create_banking_feature with product_type=Payments", 
+        "card_keywords": "→ create_banking_feature with product_type=CreditCards",
+        "investment_keywords": "→ create_banking_feature with product_type=Investments"
+      }
     }
+  },
+  "prompt_patterns": {
+    "banking_product_creation": [
+      "Create/Add/Build a {product_type} {feature} for {use_case}",
+      "I need a {product_type} system that can {capability}",
+      "Build a feature for {product_type} {process} with {technology}",
+      "Add {compliance_requirement} support to {product_type} {feature}"
+    ],
+    "compliance_focused": [
+      "Ensure {feature} meets {regulation} requirements",
+      "Add {compliance_requirement} to {product_type} {process}",
+      "Create compliance story for {regulation} in {feature}"
+    ],
+    "integration_focused": [
+      "Integrate {product_type} with {external_system}",
+      "Connect {feature} to {core_banking_system}",
+      "Add API support for {product_type} {process}"
+    ]
+  },
+  "intelligent_routing": {
+    "description": "Rules for automatically routing banking prompts to appropriate actions",
+    "rules": [
+      "If prompt contains loan/mortgage/credit keywords → suggest create_banking_feature with product_type=Loans",
+      "If prompt contains payment/transfer/wire keywords → suggest create_banking_feature with product_type=Payments",
+      "If prompt contains card/plastic/rewards keywords → suggest create_banking_feature with product_type=CreditCards",
+      "If prompt contains investment/portfolio/trading keywords → suggest create_banking_feature with product_type=Investments",
+      "If prompt contains KYC/AML/compliance keywords → suggest create_compliance_story",
+      "If prompt mentions epic-level transformation → suggest create_epic with banking_domain",
+      "If prompt is implementation-focused → suggest create_story with banking context"
+    ]
   }
 }
