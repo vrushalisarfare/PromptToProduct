@@ -156,11 +156,15 @@ class CopilotAgentsManifest:
         
         return validation
     
-    def export_to_json(self, output_path: str = "copilot_agents_manifest.json") -> str:
+    def export_to_json(self, output_path: str = None) -> str:
         """Export manifest to JSON format."""
+        if output_path is None:
+            # Default to same directory as the manifest loader
+            output_path = Path(__file__).parent / "copilot_agents_manifest.json"
+        
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(self.manifest, f, indent=2, ensure_ascii=False)
-        return output_path
+        return str(output_path)
     
     def get_agent_workflow(self) -> Dict[str, Any]:
         """Get the complete agent workflow and routing logic."""

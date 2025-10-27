@@ -59,7 +59,7 @@ validate/check/audit → validation-agent
   - `create_epic`: Generate epic specifications
   - `create_feature`: Create feature specifications with banking context
   - `create_story`: Develop user stories and compliance stories
-- **Inputs**: `prompt_schema.json`
+- **Inputs**: `specs/prompt_schema.json`
 - **Outputs**: `specs/**` (epics, features, stories)
 
 #### 3. **Code Agent**
@@ -148,8 +148,11 @@ PromptToProduct/
 │       ├── spec_agent.py          # Specification generation
 │       ├── code_agent.py          # Code generation
 │       └── validation_agent.py    # Validation and sync
-├── mcp_server/                     # MCP server for GitHub integration
-├── prompt_schema.json              # Banking domain schema v2.0
+├── specs/
+│   ├── prompt_schema.json          # Banking domain schema v2.0
+│   ├── epics/                      # Epic specifications
+│   ├── features/                   # Feature specifications
+│   └── stories/                    # User story specifications
 └── README.md                       # This file
 ```
 
@@ -377,7 +380,7 @@ curl http://127.0.0.1:8080/health
 
 ### Guides
 - [GitHub MCP Setup Guide](GitHub-MCP-Setup-Guide.md)
-- [Banking Schema Reference](prompt_schema.json)
+- [Banking Schema Reference](specs/prompt_schema.json)
 - [Agent Development Guide](src/agents/README.md)
 
 ## 🐛 Troubleshooting

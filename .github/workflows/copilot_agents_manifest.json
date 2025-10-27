@@ -51,7 +51,7 @@
       "description": "Converts developer prompts into structured markdown specs (epic, feature, story).\n",
       "entrypoint": "src/agents/spec_agent.py",
       "inputs": [
-        "prompt_schema.json"
+        "specs/prompt_schema.json"
       ],
       "outputs": [
         "specs/**"

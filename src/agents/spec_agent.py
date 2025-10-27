@@ -563,7 +563,7 @@ Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via Spec Agent
             "status": "active",
             "schema_processor_available": self.schema_processor is not None,
             "supported_actions": ["create_epic", "create_feature", "create_story"],
-            "inputs": ["prompt_schema.json"],
+            "inputs": ["specs/prompt_schema.json"],
             "outputs": ["specs/**"],
             "banking_domain_support": True,
             "compliance_story_support": True

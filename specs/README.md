@@ -4,7 +4,7 @@ This directory contains the **PromptToProduct Schema** system that enables natur
 
 ## 🎯 Overview
 
-The PromptToProduct Schema reads from `../prompt_schema.json` and provides intelligent parsing of developer prompts to create properly structured and linked specifications.
+The PromptToProduct Schema reads from `prompt_schema.json` and provides intelligent parsing of developer prompts to create properly structured and linked specifications.
 
 ## 📁 Directory Structure
 
@@ -176,5 +176,5 @@ The system handles:
 ---
 
 **Working Directory**: Set to `PromptToProduct/specs` for proper operation
-**Schema File**: `../prompt_schema.json`
+**Schema File**: `prompt_schema.json`
 **Generated**: Via PromptToProduct Schema System

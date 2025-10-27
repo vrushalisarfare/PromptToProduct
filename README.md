@@ -121,8 +121,6 @@ PromptToProduct/
 ├── README.md                   # Main project documentation
 ├── README_Manifest.md          # Copilot Agents manifest documentation
 ├── GitHub-MCP-Setup-Guide.md   # GitHub MCP integration guide
-├── copilot_agents_manifest.json # Exported Copilot Agents manifest
-├── prompt_schema.json          # JSON schema for prompt processing
 ├── src/
 │   ├── agents/                 # 4-agent orchestration system
 │   │   ├── orchestrator.py     # Central routing agent
@@ -137,12 +135,16 @@ PromptToProduct/
 │       ├── fraud_detection/    # Fraud detection modules
 │       └── compliance/         # Compliance modules
 ├── specs/                      # Specification documents
+│   ├── prompt_schema.json      # JSON schema for prompt processing
 │   ├── epics/                  # Epic specifications
 │   ├── features/               # Feature specifications  
 │   └── stories/                # User story specifications
 └── .github/
     └── workflows/
-        └── manifest_loader.py  # Copilot Agents manifest loader
+        ├── manifest_loader.py  # Copilot Agents manifest loader
+        ├── copilot_agents.yaml # Copilot Agents workflow definition
+        ├── copilot_agents_manifest.json # Generated manifest (JSON)
+        └── spec-sync.yml       # Specification sync workflow
 ```
 
 ## 📖 Usage Examples
@@ -365,8 +367,11 @@ This system is designed to work with GitHub's Model Context Protocol (MCP) serve
 ### Copilot Agents Integration
 The system includes Copilot Agents manifest support:
 ```bash
-# Load Copilot Agents manifest
+# Load and generate Copilot Agents manifest
 python .github/workflows/manifest_loader.py
+
+# View generated manifest
+cat .github/workflows/copilot_agents_manifest.json
 
 # View manifest documentation
 cat README_Manifest.md
