@@ -1,5 +1,5 @@
 // Auto-generated tests from specification
-// Generated on: 2025-10-27T00:23:07.405Z
+// DO NOT EDIT: This file was generated from the specification
 
 describe('calculator', () => {
   describe('Functional Requirements', () => {

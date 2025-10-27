@@ -4,7 +4,7 @@ class TestGenerator {
     
     // Add header
     output += '// Auto-generated tests from specification\n';
-    output += `// Generated on: ${new Date().toISOString()}\n\n`;
+    output += '// DO NOT EDIT: This file was generated from the specification\n\n';
     
     // Add describe block for the project
     output += `describe('${spec.name || 'Application'}', () => {\n`;

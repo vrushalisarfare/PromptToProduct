@@ -1,3 +1,5 @@
+const YAML = require('yaml');
+
 class SpecValidator {
   validate(content, filename) {
     const result = {
@@ -21,8 +23,6 @@ class SpecValidator {
   }
   
   validateYAML(content, result) {
-    const YAML = require('yaml');
-    
     try {
       const spec = YAML.parse(content);
       
