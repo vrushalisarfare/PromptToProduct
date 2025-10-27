@@ -42,6 +42,51 @@ python prompttoproduct.py --agent code-agent "<code_prompt>"
 python prompttoproduct.py --agent validation-agent "<validation_prompt>"
 ```
 
+#### SpecAgent Examples (Requirements & Architecture)
+```bash
+# Epic creation
+python prompttoproduct.py --agent spec-agent "Create an epic for digital loan origination platform with AI-powered risk assessment"
+
+# Feature specification
+python prompttoproduct.py --agent spec-agent "Add a feature for real-time fraud detection in credit card transactions under epic E001"
+
+# User story creation
+python prompttoproduct.py --agent spec-agent "Create a story for KYC document verification API under feature F005"
+
+# Compliance requirements
+python prompttoproduct.py --agent spec-agent "Create a compliance story for PCI DSS tokenization requirements under feature F003"
+```
+
+#### CodeAgent Examples (Implementation & Development)
+```bash
+# API implementation
+python prompttoproduct.py --agent code-agent "Implement REST API for loan application submission with validation"
+
+# Database schema
+python prompttoproduct.py --agent code-agent "Create database schema for customer onboarding with KYC compliance"
+
+# Frontend component
+python prompttoproduct.py --agent code-agent "Build React component for credit card application form with real-time validation"
+
+# Integration code
+python prompttoproduct.py --agent code-agent "Implement payment gateway integration for ACH transfers with fraud monitoring"
+```
+
+#### ValidationAgent Examples (Testing & Quality Assurance)
+```bash
+# Test suite creation
+python prompttoproduct.py --agent validation-agent "Create comprehensive test suite for loan approval workflow"
+
+# Security validation
+python prompttoproduct.py --agent validation-agent "Validate PCI compliance for payment processing implementation"
+
+# Performance testing
+python prompttoproduct.py --agent validation-agent "Create performance tests for high-volume transaction processing"
+
+# Integration testing
+python prompttoproduct.py --agent validation-agent "Validate API integration between fraud detection and payment systems"
+```
+
 ## 🏦 Banking Domain Categories
 
 ### 📊 Product Types Supported
