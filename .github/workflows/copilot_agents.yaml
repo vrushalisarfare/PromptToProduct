@@ -1,0 +1,70 @@
+version: "1.0"
+project: "Prompt to Product"
+description: >
+  Copilot Agent Orchestration Manifest for turning natural-language prompts
+  into epics, features, stories, and Python code for MyBank.
+
+agents:
+  - id: orchestrator
+    name: Prompt Orchestrator
+    description: >
+      The hub agent that classifies user intent and delegates to domain agents.
+    entrypoint: src/agents/orchestrator.py
+    capabilities:
+      - classify_prompt
+      - route_to_agent
+      - memory_context
+    routes:
+      - trigger: ["create", "add", "generate", "build"]
+        next: spec-agent
+      - trigger: ["code", "implement", "develop"]
+        next: code-agent
+      - trigger: ["validate", "check", "audit"]
+        next: validation-agent
+    memory:
+      context_window: 10
+      persist: true
+
+  - id: spec-agent
+    name: Spec Agent
+    description: >
+      Converts developer prompts into structured markdown specs (epic, feature, story).
+    entrypoint: src/agents/spec_agent.py
+    inputs:
+      - prompt_schema.json
+    outputs:
+      - specs/**
+    actions:
+      - create_epic
+      - create_feature
+      - create_story
+    on_complete:
+      - validation-agent
+
+  - id: code-agent
+    name: Code Agent
+    description: >
+      Reads story specs and generates or updates Python code in the MyBank repository.
+    entrypoint: src/agents/code_agent.py
+    inputs:
+      - specs/stories/**
+      - src/MyBank/**
+    outputs:
+      - src/MyBank/**
+    actions:
+      - generate_code_snippet
+      - commit_changes
+    on_complete:
+      - validation-agent
+
+  - id: validation-agent
+    name: Validation Agent
+    description: >
+      Validates that specs are properly linked and code satisfies acceptance criteria.
+    entrypoint: src/agents/validation_agent.py
+    actions:
+      - validate_links
+      - sync_with_github
+    reports:
+      - github_issues
+      - workflow_logs
