@@ -1,0 +1,57 @@
+{
+  "name": "PromptToProduct Schema",
+  "version": "1.0",
+  "description": "Schema for interpreting developer prompts and mapping them to spec-driven actions.",
+  "actions": {
+    "create_epic": {
+      "description": "Creates a new Epic markdown file under specs/epics/",
+      "example_prompt": "Create an epic for enabling cross-agent communication",
+      "fields": {
+        "id": "E###",
+        "title": "Epic title",
+        "objective": "Goal of the epic",
+        "owner": "Person responsible",
+        "linked_features": [
+          "F###"
+        ]
+      }
+    },
+    "create_feature": {
+      "description": "Creates a new Feature markdown file linked to an Epic.",
+      "example_prompt": "Add a feature to automate prompt categorization under Epic E001",
+      "fields": {
+        "id": "F###",
+        "epic": "E###",
+        "goal": "Goal of the feature",
+        "linked_stories": [
+          "S###"
+        ],
+        "technical_requirements": "Detailed tech spec"
+      }
+    },
+    "create_story": {
+      "description": "Creates a new Story markdown file linked to a Feature.",
+      "example_prompt": "Add a story to set up prompt validation under Feature F001",
+      "fields": {
+        "id": "S###",
+        "feature": "F###",
+        "acceptance_criteria": [
+          "Criteria 1",
+          "Criteria 2"
+        ],
+        "tasks": [
+          "Step 1",
+          "Step 2"
+        ]
+      }
+    },
+    "update_spec": {
+      "description": "Updates an existing spec (epic/feature/story) with new content or links.",
+      "example_prompt": "Update feature F001 to include data lineage tracking"
+    },
+    "validate_links": {
+      "description": "Validates hierarchical linkage across specs.",
+      "example_prompt": "Check if all stories are linked to a valid feature"
+    }
+  }
+}

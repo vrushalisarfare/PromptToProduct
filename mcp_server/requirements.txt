@@ -1,0 +1,7 @@
+# MCP server dependencies
+mcp>=1.0.0
+requests>=2.25.0
+
+# For production, you might also want:
+# fastapi
+# uvicorn
