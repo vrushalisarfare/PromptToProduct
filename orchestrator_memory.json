@@ -1,14 +1,17 @@
 [
   {
-    "timestamp": "2025-10-27T10:39:51.006208",
-    "prompt": "Create a story for implementing TOTP-based two-factor authentication for mobile banking users",
-    "intent": "create_story",
+    "timestamp": "2025-10-27T10:41:23.559665",
+    "prompt": "Create an epic for digital loan origination platform",
+    "intent": "create_epic",
     "target_agent": "spec-agent",
     "banking_context": {
-      "is_banking": false,
-      "product_types": [],
+      "is_banking": true,
+      "product_types": [
+        "loans",
+        "digital_banking"
+      ],
       "compliance_areas": [],
-      "primary_product": null
+      "primary_product": "loans"
     }
   }
 ]
