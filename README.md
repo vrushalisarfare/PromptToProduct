@@ -140,6 +140,11 @@ PromptToProduct/
 │   ├── epics/                  # Epic specifications
 │   ├── features/               # Feature specifications  
 │   └── stories/                # User story specifications
+├── prompts/                    # Prompts library and examples
+│   ├── banking/                # Banking domain prompts (epics, features, stories, compliance)
+│   ├── system/                 # System management prompts (status, validation, deployment)
+│   ├── examples/               # Complete workflow examples (fraud detection, credit cards)
+│   └── README.md               # Prompts library documentation
 └── .github/
     └── workflows/
         ├── manifest_loader.py      # Copilot Agents manifest loader
@@ -148,6 +153,28 @@ PromptToProduct/
 ```
 
 ## 📖 Usage Examples
+
+### 📚 Prompts Library
+Explore the comprehensive prompts library for tested and validated examples:
+
+```bash
+# Browse the prompts library
+ls prompts/
+
+# Banking domain prompts
+cat prompts/banking/epics.md        # Epic-level initiatives
+cat prompts/banking/features.md     # Product capabilities
+cat prompts/banking/stories.md      # Implementation tasks
+cat prompts/banking/compliance.md   # Regulatory requirements
+
+# Complete workflow examples
+cat prompts/examples/fraud_detection.md  # End-to-end fraud detection
+cat prompts/examples/credit_cards.md     # Credit card platform example
+
+# System management prompts
+cat prompts/system/status.md        # Status monitoring
+cat prompts/system/validation.md    # Quality assurance
+```
 
 ### Basic Prompt Processing
 ```bash
@@ -339,30 +366,6 @@ cat README_Manifest.md
 
 # Setup GitHub MCP integration
 cat GitHub-MCP-Setup-Guide.md
-```
-
-### GitHub Actions Integration
-```yaml
-# .github/workflows/prompttoproduct.yml
-name: PromptToProduct CI
-on: [push, pull_request]
-jobs:
-  validate-specs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Validate Specifications
-        run: python prompttoproduct.py --validate-all --json
-```
-
-### API Integration
-```python
-# Programmatic usage
-from prompttoproduct import PromptToProduct
-
-system = PromptToProduct()
-result = system.process_prompt("Create payment processing API")
-print(f"Generated {len(result['execution_summary']['total_files_created'])} files")
 ```
 
 ## 🔍 Troubleshooting
