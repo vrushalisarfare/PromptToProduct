@@ -121,6 +121,7 @@ PromptToProduct/
 ├── README.md                   # Main project documentation
 ├── README_Manifest.md          # Copilot Agents manifest documentation
 ├── GitHub-MCP-Setup-Guide.md   # GitHub MCP integration guide
+├── .gitignore                  # Git ignore rules
 ├── src/
 │   ├── agents/                 # 4-agent orchestration system
 │   │   ├── orchestrator.py     # Central routing agent
@@ -141,10 +142,9 @@ PromptToProduct/
 │   └── stories/                # User story specifications
 └── .github/
     └── workflows/
-        ├── manifest_loader.py  # Copilot Agents manifest loader
-        ├── copilot_agents.yaml # Copilot Agents workflow definition
-        ├── copilot_agents_manifest.json # Generated manifest (JSON)
-        └── spec-sync.yml       # Specification sync workflow
+        ├── manifest_loader.py      # Copilot Agents manifest loader
+        ├── copilot_agents.yaml     # Copilot Agents workflow definition
+        └── copilot_agents_manifest.json # Generated manifest (JSON)
 ```
 
 ## 📖 Usage Examples
