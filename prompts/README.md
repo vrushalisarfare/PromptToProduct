@@ -14,16 +14,10 @@ prompts/
 │   └── compliance.md           # Compliance-focused prompts
 ├── system/                      # System management prompts
 │   ├── status.md               # Status and monitoring prompts
-│   ├── validation.md           # Validation and testing prompts
-│   └── deployment.md           # Deployment and sync prompts
+│   └── validation.md           # Validation and testing prompts
 ├── examples/                    # Complete workflow examples
 │   ├── credit_cards.md         # Credit card system examples
-│   ├── fraud_detection.md      # Fraud detection examples
-│   └── loan_processing.md      # Loan processing examples
-└── templates/                   # Prompt templates and patterns
-    ├── epic_templates.md       # Epic creation templates
-    ├── feature_templates.md    # Feature creation templates
-    └── story_templates.md      # Story creation templates
+│   └── fraud_detection.md      # Fraud detection examples
 ```
 
 ## 🚀 Quick Start
@@ -80,7 +74,47 @@ For creating compliance-focused stories and validation requirements.
 ### 🔍 **System Prompts** (Management & Operations)
 For system status, validation, and operational tasks.
 
-## 🎨 Prompt Patterns
+## 🎨 Prompt Patterns & Templates
+
+All prompt patterns and templates are integrated directly into each category file:
+- **Epic patterns** in `banking/epics.md`
+- **Feature patterns** in `banking/features.md` 
+- **Story patterns** in `banking/stories.md`
+- **Compliance patterns** in `banking/compliance.md`
+- **System patterns** in `system/status.md` and `system/validation.md`
+
+### ⚡ Quick Prompt Patterns
+
+#### Epic Creation
+```
+"Create an epic for [business_initiative] [banking_domain]"
+"Add an epic for [technology_transformation] [product_area]"
+```
+
+#### Feature Development  
+```
+"Add a feature for [capability] [product_type] under epic [ID]"
+"Create a feature for [technology] [banking_process] with [compliance]"
+```
+
+#### Story Implementation
+```
+"Create a story for [implementation_task] under feature [ID]"
+"Add a story for [technical_component] [integration] under feature [ID]"
+```
+
+#### Compliance & Security
+```
+"Create a compliance story for [regulation] [requirement] under feature [ID]"
+"Add a compliance story for [security_control] [validation] under feature [ID]"
+```
+
+#### System Operations
+```
+"Check [component] status"
+"Validate [scope] [criteria]"
+"Show [metrics] [timeframe]"
+```
 
 ### Basic Pattern Structure
 ```
@@ -118,6 +152,28 @@ Track your most effective prompts:
 - **Reusability**: Prompts that work across different contexts
 - **Compliance Coverage**: Prompts that address regulatory requirements
 - **Integration Success**: Prompts that generate properly linked hierarchies
+
+## 🎯 Example Quick Workflow
+
+### Epic → Feature → Story Creation
+```bash
+# 1. Create an epic
+python prompttoproduct.py "Create an epic for digital loan origination platform"
+
+# 2. Add features to the epic
+python prompttoproduct.py "Add a feature for AI credit scoring under epic E005"  
+python prompttoproduct.py "Add a feature for automated document verification under epic E005"
+
+# 3. Create implementation stories
+python prompttoproduct.py "Create a story for ML model training under feature F014"
+python prompttoproduct.py "Create a story for API integration under feature F015"
+
+# 4. Add compliance requirements
+python prompttoproduct.py "Create a compliance story for KYC verification under feature F015"
+
+# 5. Validate the complete workflow
+python prompttoproduct.py --validate-all
+```
 
 ---
 
