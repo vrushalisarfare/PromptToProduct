@@ -5,18 +5,23 @@ A sophisticated AI agent system that converts natural language prompts into comp
 ## 🚀 Quick Start
 
 ```bash
-# Process a natural language prompt
+# 1. Setup GitHub MCP integration (one-time setup)
+cat GitHub-MCP-Setup-Guide.md
+
+# 2. Process a natural language prompt
 python prompttoproduct.py "Create a credit card fraud detection system"
 
-# Check system status  
+# 3. Check system status  
 python prompttoproduct.py --status
 
-# Validate all specifications
+# 4. Validate all specifications
 python prompttoproduct.py --validate-all
 
-# Run specific agent
+# 5. Run specific agent
 python prompttoproduct.py --agent orchestrator "Route banking loan requests"
 ```
+
+> **Note**: This system integrates with GitHub's MCP server - no local server setup required!
 
 ## 🏗️ System Architecture
 
@@ -113,22 +118,31 @@ python prompttoproduct.py --status
 ```
 PromptToProduct/
 ├── prompttoproduct.py          # Main CLI interface
+├── README.md                   # Main project documentation
 ├── README_Manifest.md          # Copilot Agents manifest documentation
+├── GitHub-MCP-Setup-Guide.md   # GitHub MCP integration guide
+├── copilot_agents_manifest.json # Exported Copilot Agents manifest
+├── prompt_schema.json          # JSON schema for prompt processing
 ├── src/
-│   ├── agents/
+│   ├── agents/                 # 4-agent orchestration system
 │   │   ├── orchestrator.py     # Central routing agent
 │   │   ├── spec_agent.py       # Specification generator
 │   │   ├── code_agent.py       # Code implementation agent
 │   │   └── validation_agent.py # Quality & GitHub sync agent
-│   └── MyBank/                 # Generated banking code
-├── specs/
+│   └── MyBank/                 # Generated banking code structure
+│       ├── accounts/           # Account management modules
+│       ├── loans/              # Loan processing modules
+│       ├── credit_cards/       # Credit card modules
+│       ├── payments/           # Payment processing modules
+│       ├── fraud_detection/    # Fraud detection modules
+│       └── compliance/         # Compliance modules
+├── specs/                      # Specification documents
 │   ├── epics/                  # Epic specifications
 │   ├── features/               # Feature specifications  
 │   └── stories/                # User story specifications
-├── .github/
-│   └── workflows/
-│       └── manifest_loader.py  # Copilot Agents manifest loader
-└── copilot_agents_manifest.json # Exported manifest
+└── .github/
+    └── workflows/
+        └── manifest_loader.py  # Copilot Agents manifest loader
 ```
 
 ## 📖 Usage Examples
@@ -345,6 +359,9 @@ python prompttoproduct.py --agent code-agent "Create fraud monitoring dashboard"
 
 ## 🤝 Integration
 
+### GitHub MCP Server Integration
+This system is designed to work with GitHub's Model Context Protocol (MCP) server, providing seamless integration with VS Code and GitHub Copilot. No local MCP server required - everything works through GitHub's cloud infrastructure.
+
 ### Copilot Agents Integration
 The system includes Copilot Agents manifest support:
 ```bash
@@ -353,6 +370,9 @@ python .github/workflows/manifest_loader.py
 
 # View manifest documentation
 cat README_Manifest.md
+
+# Setup GitHub MCP integration
+cat GitHub-MCP-Setup-Guide.md
 ```
 
 ### GitHub Actions Integration
