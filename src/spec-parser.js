@@ -60,7 +60,7 @@ class SpecParser {
         }
         
         if (currentItem && line.includes('**Priority**:')) {
-          const priority = line.split(':')[1].trim().toLowerCase().replace(/\/.*$/, '');
+          const priority = line.split(':')[1].trim().toLowerCase().split('/')[0];
           currentItem.priority = priority;
         }
       }
