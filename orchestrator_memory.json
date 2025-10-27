@@ -1,16 +1,14 @@
 [
   {
-    "timestamp": "2025-10-27T10:37:08.540982",
-    "prompt": "Create an epic for machine learning model deployment pipeline",
-    "intent": "create_epic",
+    "timestamp": "2025-10-27T10:39:51.006208",
+    "prompt": "Create a story for implementing TOTP-based two-factor authentication for mobile banking users",
+    "intent": "create_story",
     "target_agent": "spec-agent",
     "banking_context": {
-      "is_banking": true,
-      "product_types": [
-        "payments"
-      ],
+      "is_banking": false,
+      "product_types": [],
       "compliance_areas": [],
-      "primary_product": "payments"
+      "primary_product": null
     }
   }
 ]

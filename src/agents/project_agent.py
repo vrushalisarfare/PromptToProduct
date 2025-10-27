@@ -92,18 +92,10 @@ class ProjectAgent:
         """
         print("🔗 Creating GitHub Project Items...")
         
-        # Debug: Show what we received
+        # Show what we received
         print(f"   📊 Received {len(spec_results)} spec results")
         for i, spec in enumerate(spec_results):
             print(f"   📄 Spec {i+1}: {spec.get('spec_type', 'unknown')} - {spec.get('title', 'unknown')}")
-        
-        # Debug: Show configuration
-        print(f"   🔧 Config - Enabled: {self.project_config['enabled']}")
-        print(f"   🔧 Config - Project #: {self.project_config['project_number']}")
-        print(f"   🔧 Config - Org: {self.project_config['org_name']}")
-        print(f"   🔧 Config - Token Available: {bool(self.github_config.get('token'))}")
-        print(f"   🔧 Env GITHUB_PROJECT_ENABLED: {os.getenv('GITHUB_PROJECT_ENABLED', 'NOT_SET')}")
-        print(f"   🔧 Env GITHUB_PROJECT_NUMBER: {os.getenv('GITHUB_PROJECT_NUMBER', 'NOT_SET')}")
         
         if not self.project_config["enabled"]:
             return {
