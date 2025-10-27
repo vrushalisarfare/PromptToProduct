@@ -29,6 +29,7 @@ try:
     from src.agents.spec_agent import SpecAgent  
     from src.agents.code_agent import CodeAgent
     from src.agents.validation_agent import ValidationAgent
+    from src.agents.project_agent import ProjectAgent
 except ImportError as e:
     print(f"❌ Error importing agents: {e}")
     print("Ensure all agent files are present in src/agents/")
@@ -38,11 +39,12 @@ class PromptToProduct:
     """
     Main orchestration system for the PromptToProduct workflow.
     
-    Coordinates all four agents to provide complete prompt-to-code workflow:
+    Coordinates all five agents to provide complete prompt-to-code workflow:
     1. Orchestrator - Routes prompts to appropriate agents
     2. Spec Agent - Generates markdown specifications  
     3. Code Agent - Creates Python implementations
-    4. Validation Agent - Validates specs and syncs with GitHub
+    4. Validation Agent - Validates specs quality
+    5. Project Agent - GitHub Projects and issue management
     """
     
     def __init__(self):
@@ -56,6 +58,7 @@ class PromptToProduct:
         self.spec_agent = SpecAgent()
         self.code_agent = CodeAgent()
         self.validation_agent = ValidationAgent()
+        self.project_agent = ProjectAgent()
         
         # System state tracking
         self.session_history = []
@@ -63,7 +66,8 @@ class PromptToProduct:
             "orchestrator": True,
             "spec-agent": True, 
             "code-agent": True,
-            "validation-agent": True
+            "validation-agent": True,
+            "project-agent": True
         }
         
         print("✅ All agents initialized successfully")
@@ -95,6 +99,7 @@ class PromptToProduct:
             "spec_result": None,
             "code_result": None,
             "validation_result": None,
+            "project_result": None,
             "overall_status": "processing",
             "execution_summary": {},
             "errors": []
@@ -145,28 +150,102 @@ class PromptToProduct:
                 print(f"⚙️ Generated: {code_result.get('generation_type', 'unknown')}")
                 print(f"📁 Files: {len(code_result.get('generated_files', []))} created")
             
-            # Step 4: Validation Agent (if requested or specs were generated)
+            # Step 4: Validation Agent (always run for quality assessment)
             should_validate = (
                 "validation-agent" in session_result["agents_involved"] or
                 options.get("auto_validate", True) and session_result.get("spec_result")
             )
             
             if should_validate:
-                print(f"\n✅ Step 4: Validation & Sync")
+                print(f"\n✅ Step 4: Quality Validation")
                 print("-" * 40)
                 
-                # Prepare validation parameters
+                # Prepare validation parameters (focused on quality only)
                 validation_params = orchestrator_result.copy()
                 validation_params.update({
                     "spec_type": "validate_all",
-                    "sync_github": options.get("sync_github", False)
+                    "sync_github": False  # ProjectAgent handles GitHub integration
                 })
                 
                 validation_result = self.validation_agent.validate_specifications(validation_params)
                 session_result["validation_result"] = validation_result
                 
                 print(f"📊 Overall Score: {validation_result.get('overall_score', 0.0):.2f}/1.00")
-                print(f"🔄 GitHub Sync: {validation_result.get('github_sync_status', {}).get('status', 'not_performed')}")
+                print(f"� Specs Validated: {len(validation_result.get('validation_results', []))}")
+                
+            # Step 5: Project Agent (for GitHub Projects integration)
+            should_sync_github = options.get("sync_github", False)
+            
+            if should_sync_github and session_result.get("spec_result"):
+                print(f"\n🔗 Step 5: GitHub Projects Integration")
+                print("-" * 40)
+                
+                # Get spec results from spec agent
+                spec_created_files = session_result["spec_result"].get("created_files", [])
+                if spec_created_files:
+                    # Transform spec results for ProjectAgent
+                    spec_results_for_project = []
+                    
+                    # Handle the case where created_files contains file paths as strings
+                    for file_info in spec_created_files:
+                        if isinstance(file_info, str):
+                            # Extract info from file path string
+                            file_path = file_info
+                            file_name = Path(file_path).name
+                            
+                            # Determine spec type from file path
+                            if "/epics/" in file_path or "\\epics\\" in file_path:
+                                spec_type = "epic"
+                            elif "/features/" in file_path or "\\features\\" in file_path:
+                                spec_type = "feature"
+                            elif "/stories/" in file_path or "\\stories\\" in file_path:
+                                spec_type = "story"
+                            else:
+                                spec_type = "epic"  # default
+                            
+                            # Extract title from filename
+                            title_parts = file_name.replace(".md", "").split("-")[1:]
+                            title = " ".join(title_parts).replace("-", " ").title() if title_parts else "Generated Spec"
+                            
+                            spec_results_for_project.append({
+                                "file_path": file_path,
+                                "spec_type": spec_type,
+                                "title": title,
+                                "objective": orchestrator_result.get("intent", ""),
+                                "owner": "vrushalisarfare",  # From config
+                                "assigned_to": "vrushalisarfare",
+                                "priority": "Medium",
+                                "status": "In Progress",
+                                "banking_domain": orchestrator_result.get("banking_context", {}).get("product_types", ["general"])[0] if orchestrator_result.get("banking_context", {}).get("product_types") else "general",
+                                "compliance_requirements": orchestrator_result.get("banking_context", {}).get("compliance_areas", [])
+                            })
+                        else:
+                            # Handle dictionary format (if it exists)
+                            spec_results_for_project.append({
+                                "file_path": file_info.get("file_path", ""),
+                                "spec_type": file_info.get("spec_type", "epic"),
+                                "title": file_info.get("title", "Generated Spec"),
+                                "objective": orchestrator_result.get("intent", ""),
+                                "owner": "vrushalisarfare",
+                                "assigned_to": "vrushalisarfare",
+                                "priority": "Medium",
+                                "status": "In Progress",
+                                "banking_domain": orchestrator_result.get("banking_context", {}).get("product_types", ["general"])[0] if orchestrator_result.get("banking_context", {}).get("product_types") else "general",
+                                "compliance_requirements": orchestrator_result.get("banking_context", {}).get("compliance_areas", [])
+                            })
+                    
+                    project_result = self.project_agent.create_spec_project_items(spec_results_for_project)
+                    session_result["project_result"] = project_result
+                    
+                    if project_result.get("success"):
+                        print(f"✅ Project Items: {project_result.get('items_created', 0)} created")
+                        print(f"📋 Project #{project_result.get('project_number')} in {project_result.get('organization')}")
+                    else:
+                        print(f"⚠️ GitHub Projects: {project_result.get('reason', 'Integration failed')}")
+                        if project_result.get("errors"):
+                            print(f"   📋 Errors: {'; '.join(project_result['errors'])}")
+                else:
+                    print("⚠️ No spec files to sync with GitHub Projects")
             
             # Generate execution summary
             session_result["execution_summary"] = self._generate_execution_summary(session_result)
@@ -224,7 +303,7 @@ class PromptToProduct:
             summary["validation_score"] = session_result["validation_result"].get("overall_score", 0.0)
         
         # GitHub integration
-        if session_result.get("validation_result", {}).get("github_sync_status"):
+        if session_result.get("project_result", {}).get("success"):
             summary["github_integration"] = True
         
         # Generate recommendations

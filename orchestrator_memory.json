@@ -1,16 +1,16 @@
 [
   {
-    "timestamp": "2025-10-27T09:49:17.672322",
-    "prompt": "Create an epic for automated credit approval system",
+    "timestamp": "2025-10-27T10:37:08.540982",
+    "prompt": "Create an epic for machine learning model deployment pipeline",
     "intent": "create_epic",
     "target_agent": "spec-agent",
     "banking_context": {
       "is_banking": true,
       "product_types": [
-        "loans"
+        "payments"
       ],
       "compliance_areas": [],
-      "primary_product": "loans"
+      "primary_product": "payments"
     }
   }
 ]

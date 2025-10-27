@@ -489,6 +489,12 @@ class ValidationAgent:
             board_result = self._update_project_board(validation_results)
             if board_result.get("success"):
                 sync_result["actions_taken"].append("Updated project board")
+                sync_result["project_items_added"] = board_result.get("items_added", 0)
+                print(f"📋 Added {board_result.get('items_added', 0)} items to GitHub Project #{board_result.get('project_number', 'Unknown')}")
+                for item in board_result.get("project_items", []):
+                    print(f"   • {item['spec']} → Issue #{item['issue_number']}")
+            else:
+                print(f"⚠️ Project board update skipped: {board_result.get('reason', board_result.get('error', 'Unknown'))}")
             
             sync_result["status"] = "completed"
             
@@ -602,12 +608,41 @@ class ValidationAgent:
             }
     
     def _update_project_board(self, validation_results: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Update GitHub project board with validation status."""
-        # Simulate project board update
+        """
+        Legacy method for GitHub project board updates.
+        
+        NOTE: GitHub Projects integration has been moved to ProjectAgent.
+        This method is kept for backward compatibility but should not be used.
+        """
         return {
-            "success": True,
-            "board_updated": "PromptToProduct Validation Board",
-            "cards_updated": len(validation_results)
+            "success": False,
+            "reason": "GitHub Projects integration moved to ProjectAgent",
+            "items_added": 0,
+            "recommendation": "Use ProjectAgent.create_spec_project_items() instead"
+        }
+    
+    def _create_spec_issue(self, spec_result: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Legacy method for creating GitHub issues from specs.
+        
+        NOTE: GitHub issue creation has been moved to ProjectAgent.
+        This method is kept for backward compatibility but should not be used.
+        """
+        return {
+            "success": False,
+            "error": "Issue creation moved to ProjectAgent. Use ProjectAgent.create_spec_project_items() instead."
+        }
+    
+    def _add_issue_to_project(self, issue_number: int, project_number: str, org_name: str, spec_result: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Legacy method for adding issues to GitHub Projects.
+        
+        NOTE: GitHub Projects integration has been moved to ProjectAgent.
+        This method is kept for backward compatibility but should not be used.
+        """
+        return {
+            "success": False,
+            "error": "Project board integration moved to ProjectAgent. Use ProjectAgent.create_spec_project_items() instead."
         }
     
     def get_validation_agent_status(self) -> Dict[str, Any]:
