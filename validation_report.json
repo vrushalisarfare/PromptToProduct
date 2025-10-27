@@ -1,0 +1,488 @@
+{
+  "validation_timestamp": "2025-10-27T09:49:17.699022",
+  "overall_score": 0.0,
+  "total_specs_validated": 13,
+  "specs_passing": 0,
+  "specs_failing": 13,
+  "validation_results": [
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\epics\\E001-Prompt-Based-Agent-Orchestration.md",
+      "file_name": "E001-Prompt-Based-Agent-Orchestration.md",
+      "spec_type": "epic",
+      "validation_timestamp": "2025-10-27T09:49:17.672322",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Epic Title",
+        "Epic Overview",
+        "Business Value",
+        "Acceptance Criteria",
+        "Features",
+        "Dependencies"
+      ],
+      "missing_fields": [
+        "title",
+        "overview",
+        "business_value"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [
+        "Missing explicit acceptance criteria section"
+      ],
+      "recommendations": [
+        "Add missing section: Epic Title",
+        "Add missing section: Epic Overview",
+        "Add missing section: Business Value",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Features",
+        "Add missing section: Dependencies",
+        "Include content about: title",
+        "Include content about: overview",
+        "Include content about: business_value",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 113,
+      "readability_score": 0.7
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\epics\\E002-digital-loan-origination-platform.md",
+      "file_name": "E002-digital-loan-origination-platform.md",
+      "spec_type": "epic",
+      "validation_timestamp": "2025-10-27T09:49:17.679037",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Epic Title",
+        "Epic Overview",
+        "Business Value",
+        "Acceptance Criteria",
+        "Features",
+        "Dependencies"
+      ],
+      "missing_fields": [
+        "title",
+        "overview",
+        "business_value"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [
+        "Contains placeholder text: TBD",
+        "Missing explicit acceptance criteria section"
+      ],
+      "recommendations": [
+        "Add missing section: Epic Title",
+        "Add missing section: Epic Overview",
+        "Add missing section: Business Value",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Features",
+        "Add missing section: Dependencies",
+        "Include content about: title",
+        "Include content about: overview",
+        "Include content about: business_value",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Replace placeholder text with actual content",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 64,
+      "readability_score": 0.0
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\epics\\E003-mobile-banking-app-modernization.md",
+      "file_name": "E003-mobile-banking-app-modernization.md",
+      "spec_type": "epic",
+      "validation_timestamp": "2025-10-27T09:49:17.680044",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Epic Title",
+        "Epic Overview",
+        "Business Value",
+        "Acceptance Criteria",
+        "Features",
+        "Dependencies"
+      ],
+      "missing_fields": [
+        "title",
+        "overview",
+        "business_value"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [
+        "Contains placeholder text: TBD",
+        "Missing explicit acceptance criteria section"
+      ],
+      "recommendations": [
+        "Add missing section: Epic Title",
+        "Add missing section: Epic Overview",
+        "Add missing section: Business Value",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Features",
+        "Add missing section: Dependencies",
+        "Include content about: title",
+        "Include content about: overview",
+        "Include content about: business_value",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Replace placeholder text with actual content",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 64,
+      "readability_score": 0.0
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\epics\\E004-automated-credit-approval-system.md",
+      "file_name": "E004-automated-credit-approval-system.md",
+      "spec_type": "epic",
+      "validation_timestamp": "2025-10-27T09:49:17.680044",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Epic Title",
+        "Epic Overview",
+        "Business Value",
+        "Acceptance Criteria",
+        "Features",
+        "Dependencies"
+      ],
+      "missing_fields": [
+        "title",
+        "overview",
+        "business_value"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [
+        "Contains placeholder text: TBD",
+        "Missing explicit acceptance criteria section"
+      ],
+      "recommendations": [
+        "Add missing section: Epic Title",
+        "Add missing section: Epic Overview",
+        "Add missing section: Business Value",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Features",
+        "Add missing section: Dependencies",
+        "Include content about: title",
+        "Include content about: overview",
+        "Include content about: business_value",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Replace placeholder text with actual content",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 64,
+      "readability_score": 0.0
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\features\\F001-Prompt-to-Feature-Pipeline.md",
+      "file_name": "F001-Prompt-to-Feature-Pipeline.md",
+      "spec_type": "feature",
+      "validation_timestamp": "2025-10-27T09:49:17.684145",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Feature Title",
+        "Feature Description",
+        "User Stories",
+        "Acceptance Criteria",
+        "Technical Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "user_stories"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [
+        "Missing explicit acceptance criteria section"
+      ],
+      "recommendations": [
+        "Add missing section: Feature Title",
+        "Add missing section: Feature Description",
+        "Add missing section: User Stories",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Technical Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: user_stories",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 108,
+      "readability_score": 0.9
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\features\\F003-credit-card-fraud-detection.md",
+      "file_name": "F003-credit-card-fraud-detection.md",
+      "spec_type": "feature",
+      "validation_timestamp": "2025-10-27T09:49:17.692285",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Feature Title",
+        "Feature Description",
+        "User Stories",
+        "Acceptance Criteria",
+        "Technical Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "user_stories"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [],
+      "recommendations": [
+        "Add missing section: Feature Title",
+        "Add missing section: Feature Description",
+        "Add missing section: User Stories",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Technical Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: user_stories",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 387,
+      "readability_score": 0.3
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\stories\\S001-customer-fraud-alert-notifications.md",
+      "file_name": "S001-customer-fraud-alert-notifications.md",
+      "spec_type": "story",
+      "validation_timestamp": "2025-10-27T09:49:17.693292",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Story Title",
+        "Story Description",
+        "Acceptance Criteria",
+        "Implementation Details",
+        "Testing Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "acceptance_criteria"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [],
+      "recommendations": [
+        "Add missing section: Story Title",
+        "Add missing section: Story Description",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Implementation Details",
+        "Add missing section: Testing Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: acceptance_criteria",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 334,
+      "readability_score": 0.3
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\stories\\S001-data-validation.md",
+      "file_name": "S001-data-validation.md",
+      "spec_type": "story",
+      "validation_timestamp": "2025-10-27T09:49:17.694290",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Story Title",
+        "Story Description",
+        "Acceptance Criteria",
+        "Implementation Details",
+        "Testing Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "acceptance_criteria"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [],
+      "recommendations": [
+        "Add missing section: Story Title",
+        "Add missing section: Story Description",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Implementation Details",
+        "Add missing section: Testing Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: acceptance_criteria",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 58,
+      "readability_score": 0.7
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\stories\\S001-real-time-transaction-monitoring.md",
+      "file_name": "S001-real-time-transaction-monitoring.md",
+      "spec_type": "story",
+      "validation_timestamp": "2025-10-27T09:49:17.694290",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Story Title",
+        "Story Description",
+        "Acceptance Criteria",
+        "Implementation Details",
+        "Testing Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "acceptance_criteria"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [],
+      "recommendations": [
+        "Add missing section: Story Title",
+        "Add missing section: Story Description",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Implementation Details",
+        "Add missing section: Testing Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: acceptance_criteria",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 317,
+      "readability_score": 0.3
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\stories\\S001-Setup-MCP-Server.md",
+      "file_name": "S001-Setup-MCP-Server.md",
+      "spec_type": "story",
+      "validation_timestamp": "2025-10-27T09:49:17.695291",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Story Title",
+        "Story Description",
+        "Acceptance Criteria",
+        "Implementation Details",
+        "Testing Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "acceptance_criteria"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [],
+      "recommendations": [
+        "Add missing section: Story Title",
+        "Add missing section: Story Description",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Implementation Details",
+        "Add missing section: Testing Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: acceptance_criteria",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 67,
+      "readability_score": 0.9
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\stories\\S002-machine-learning-fraud-pattern-detection.md",
+      "file_name": "S002-machine-learning-fraud-pattern-detection.md",
+      "spec_type": "story",
+      "validation_timestamp": "2025-10-27T09:49:17.695291",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Story Title",
+        "Story Description",
+        "Acceptance Criteria",
+        "Implementation Details",
+        "Testing Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "acceptance_criteria"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [],
+      "recommendations": [
+        "Add missing section: Story Title",
+        "Add missing section: Story Description",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Implementation Details",
+        "Add missing section: Testing Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: acceptance_criteria",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 321,
+      "readability_score": 0.3
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\stories\\S003-PCI-DSS-requirements.md",
+      "file_name": "S003-PCI-DSS-requirements.md",
+      "spec_type": "story",
+      "validation_timestamp": "2025-10-27T09:49:17.696290",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Story Title",
+        "Story Description",
+        "Acceptance Criteria",
+        "Implementation Details",
+        "Testing Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "acceptance_criteria"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [],
+      "recommendations": [
+        "Add missing section: Story Title",
+        "Add missing section: Story Description",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Implementation Details",
+        "Add missing section: Testing Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: acceptance_criteria",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 414,
+      "readability_score": 0.3
+    },
+    {
+      "file_path": "C:\\PrompttoProduct\\PromptToProduct\\specs\\stories\\S004-customer-fraud-alert-notifications.md",
+      "file_name": "S004-customer-fraud-alert-notifications.md",
+      "spec_type": "story",
+      "validation_timestamp": "2025-10-27T09:49:17.696290",
+      "completeness_score": 0.0,
+      "missing_sections": [
+        "Story Title",
+        "Story Description",
+        "Acceptance Criteria",
+        "Implementation Details",
+        "Testing Requirements"
+      ],
+      "missing_fields": [
+        "title",
+        "description",
+        "acceptance_criteria"
+      ],
+      "banking_compliance": 0.0,
+      "quality_issues": [],
+      "recommendations": [
+        "Add missing section: Story Title",
+        "Add missing section: Story Description",
+        "Add missing section: Acceptance Criteria",
+        "Add missing section: Implementation Details",
+        "Add missing section: Testing Requirements",
+        "Include content about: title",
+        "Include content about: description",
+        "Include content about: acceptance_criteria",
+        "Improve banking compliance by adding security and regulatory considerations",
+        "Improve readability by using shorter sentences and clearer language"
+      ],
+      "word_count": 334,
+      "readability_score": 0.3
+    }
+  ]
+}

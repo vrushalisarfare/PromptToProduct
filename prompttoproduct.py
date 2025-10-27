@@ -105,30 +105,34 @@ class PromptToProduct:
             print("\n🎼 Step 1: Orchestrator Analysis")
             print("-" * 40)
             
-            orchestrator_result = self.orchestrator.route_prompt({
-                "prompt": prompt,
-                "session_id": session_result["session_id"],
-                "user_preferences": options.get("preferences", {}),
-                "force_banking_context": options.get("banking_context", True)
-            })
+            orchestrator_result = self.orchestrator.classify_prompt(prompt)
             
+            # Transform to expected format for compatibility
             session_result["orchestrator_result"] = orchestrator_result
-            session_result["agents_involved"] = orchestrator_result.get("recommended_agents", [])
+            session_result["agents_involved"] = [orchestrator_result.get("target_agent", "spec-agent")]
             
-            print(f"🎯 Intent: {orchestrator_result.get('intent_classification', 'unknown')}")
+            print(f"🎯 Intent: {orchestrator_result.get('intent', 'unknown')}")
             print(f"🏦 Banking Context: {orchestrator_result.get('banking_context', {}).get('is_banking', False)}")
-            print(f"📋 Recommended Agents: {', '.join(orchestrator_result.get('recommended_agents', []))}")
+            print(f"📋 Target Agent: {orchestrator_result.get('target_agent', 'spec-agent')}")
             
             # Step 2: Spec Agent (if recommended)
             if "spec-agent" in session_result["agents_involved"]:
                 print(f"\n📝 Step 2: Specification Generation")
                 print("-" * 40)
                 
-                spec_result = self.spec_agent.generate_specifications(orchestrator_result)
+                # Map orchestrator result to spec agent format
+                spec_params = {
+                    "prompt": orchestrator_result.get("original_prompt", prompt),
+                    "intent": orchestrator_result.get("intent", ""),
+                    "banking_context": orchestrator_result.get("banking_context", {}),
+                    "entities": orchestrator_result.get("entities", {})
+                }
+                
+                spec_result = self.spec_agent.process_specification_request(spec_params)
                 session_result["spec_result"] = spec_result
                 
                 print(f"📄 Generated: {spec_result.get('generation_type', 'unknown')}")
-                print(f"💾 Files: {len(spec_result.get('generated_files', []))} created")
+                print(f"💾 Files: {len(spec_result.get('created_files', []))} created")
             
             # Step 3: Code Agent (if recommended)
             if "code-agent" in session_result["agents_involved"]:
@@ -171,6 +175,15 @@ class PromptToProduct:
         except Exception as e:
             session_result["overall_status"] = "error"
             session_result["errors"].append(str(e))
+            session_result["execution_summary"] = {
+                "agents_executed": 0,
+                "total_files_created": 0,
+                "banking_features_detected": 0,
+                "validation_score": 0.0,
+                "github_integration": False,
+                "processing_time": "< 1 minute",
+                "recommendations": [f"Error occurred: {str(e)}"]
+            }
             print(f"❌ System Error: {e}")
         
         # Add to session history
@@ -195,7 +208,7 @@ class PromptToProduct:
         
         # Count files created
         if session_result.get("spec_result"):
-            summary["total_files_created"] += len(session_result["spec_result"].get("generated_files", []))
+            summary["total_files_created"] += len(session_result["spec_result"].get("created_files", []))
         
         if session_result.get("code_result"):
             summary["total_files_created"] += len(session_result["code_result"].get("generated_files", []))
@@ -315,13 +328,13 @@ class PromptToProduct:
         print(f"🔧 Running {agent_name} directly...")
         
         if agent_name == "orchestrator":
-            return self.orchestrator.route_prompt({"prompt": prompt})
+            return self.orchestrator.classify_prompt(prompt)
         elif agent_name == "spec-agent":
             # Need orchestrator context first
-            context = self.orchestrator.route_prompt({"prompt": prompt})
-            return self.spec_agent.generate_specifications(context)
+            context = self.orchestrator.classify_prompt(prompt)
+            return self.spec_agent.process_specification_request(context)
         elif agent_name == "code-agent":
-            context = self.orchestrator.route_prompt({"prompt": prompt})
+            context = self.orchestrator.classify_prompt(prompt)
             return self.code_agent.generate_code_from_specs(context)
         elif agent_name == "validation-agent":
             return self.validation_agent.validate_specifications({

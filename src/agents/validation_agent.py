@@ -19,6 +19,17 @@ import subprocess
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+# Import configuration system
+try:
+    from src.config import get_config, get_github_config, get_path_config
+    config = get_config()
+    github_config = get_github_config()
+    path_config = get_path_config()
+    CONFIG_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Configuration system not available: {e}")
+    CONFIG_AVAILABLE = False
+
 class ValidationAgent:
     """
     Validation Agent for spec validation and GitHub synchronization.
@@ -32,16 +43,31 @@ class ValidationAgent:
         """Initialize the validation agent."""
         self.agent_id = "validation-agent"
         self.version = "1.0"
-        self.specs_root = project_root / "specs"
-        self.mybank_root = project_root / "src" / "MyBank"
         
-        # GitHub configuration (would come from environment in production)
-        self.github_config = {
-            "repo_owner": "mybank-org",  # Replace with actual organization
-            "repo_name": "mybank-core",  # Replace with actual repository
-            "base_url": "https://api.github.com",
-            "token": os.getenv("GITHUB_TOKEN"),  # Set via environment variable
-        }
+        # Use configuration system if available, otherwise fall back to defaults
+        if CONFIG_AVAILABLE:
+            self.specs_root = path_config.specs_root
+            self.mybank_root = path_config.mybank_root
+            
+            # GitHub configuration from config system
+            self.github_config = {
+                "repo_owner": github_config.repo_owner,
+                "repo_name": github_config.repo_name,
+                "base_url": github_config.base_url,
+                "token": github_config.token,
+            }
+        else:
+            # Fallback to hardcoded values
+            self.specs_root = project_root / "specs"
+            self.mybank_root = project_root / "src" / "MyBank"
+            
+            # GitHub configuration (fallback)
+            self.github_config = {
+                "repo_owner": "vrushalisarfare",
+                "repo_name": "PromptToProduct", 
+                "base_url": "https://api.github.com",
+                "token": os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
+            }
         
         # Validation schemas
         self.validation_schemas = self._load_validation_schemas()

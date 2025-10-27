@@ -238,26 +238,44 @@ class SpecAgent:
         """Extract epic information from prompt."""
         import re
         
-        # Extract title
+        # Extract title with improved regex patterns
         title_patterns = [
-            r"epic (?:for |to )?(.+?)(?:\s|$)",
-            r"create (?:an? )?epic (?:for |to )?(.+?)(?:\s|$)",
-            r"(.+?)\s*epic",
+            r"create (?:an? )?epic (?:for |to )?(.+?)(?:\s+with|\s+using|\s*$)",  # More specific pattern first
+            r"epic (?:for |to )?(.+?)(?:\s+with|\s+using|\s*$)",  # Capture everything until 'with' or end
+            r"(?:create|add|build) (?:an? )?(.+?)\s*epic",  # Reverse pattern
+            r"(.+?)\s*(?:epic|platform|system)"  # Fallback pattern
         ]
         
         title = "New Epic"
+        prompt_clean = prompt.strip()
+        
         for pattern in title_patterns:
-            match = re.search(pattern, prompt, re.IGNORECASE)
+            match = re.search(pattern, prompt_clean, re.IGNORECASE)
             if match:
-                title = match.group(1).strip()
-                break
+                extracted_title = match.group(1).strip()
+                # Clean up common words and improve title
+                extracted_title = re.sub(r'^(?:a|an|the)\s+', '', extracted_title, flags=re.IGNORECASE)
+                if len(extracted_title) > 3:  # Avoid too short titles
+                    title = extracted_title
+                    break
+        
+        # If still generic, try extracting key concepts
+        if title == "New Epic":
+            # Extract key banking/technical terms
+            key_terms = re.findall(r'\b(?:loan|credit|fraud|detection|payment|banking|origination|platform|system|AI|risk|assessment)\b', prompt, re.IGNORECASE)
+            if key_terms:
+                title = ' '.join(key_terms[:3]).title()  # Use first 3 key terms
         
         return {
             "title": title,
             "objective": f"Implement {title}",
             "banking_domain": banking_context.get("primary_product", ""),
             "compliance_requirements": banking_context.get("compliance_areas", []),
-            "owner": "TBD"
+            "owner": os.getenv("DEFAULT_OWNER", "TBD"),
+            "assigned_to": os.getenv("DEFAULT_ASSIGNEE", "TBD"),
+            "created_by": os.getenv("SYSTEM_USER", "PromptToProduct-Agent"),
+            "priority": os.getenv("DEFAULT_PRIORITY", "Medium"),
+            "status": os.getenv("DEFAULT_STATUS", "In Progress")
         }
     
     def _extract_feature_info(self, prompt: str, banking_context: Dict[str, Any], entities: Dict[str, Any]) -> Dict[str, Any]:
@@ -294,7 +312,12 @@ class SpecAgent:
             "product_type": banking_context.get("primary_product", "").title() if banking_context.get("primary_product") else None,
             "goal": title,
             "banking_context": banking_context,
-            "compliance_requirements": banking_context.get("compliance_areas", [])
+            "compliance_requirements": banking_context.get("compliance_areas", []),
+            "owner": os.getenv("DEFAULT_OWNER", "TBD"),
+            "assigned_to": os.getenv("DEFAULT_ASSIGNEE", "TBD"),
+            "created_by": os.getenv("SYSTEM_USER", "PromptToProduct-Agent"),
+            "priority": os.getenv("DEFAULT_PRIORITY", "Medium"),
+            "status": os.getenv("DEFAULT_STATUS", "In Progress")
         }
     
     def _extract_story_info(self, prompt: str, banking_context: Dict[str, Any], entities: Dict[str, Any]) -> Dict[str, Any]:
@@ -335,7 +358,12 @@ class SpecAgent:
             "parent_feature": parent_feature,
             "stakeholder": stakeholder,
             "compliance_context": banking_context.get("compliance_areas", []),
-            "banking_context": banking_context
+            "banking_context": banking_context,
+            "owner": os.getenv("DEFAULT_OWNER", "TBD"),
+            "assigned_to": os.getenv("DEFAULT_ASSIGNEE", "TBD"),
+            "created_by": os.getenv("SYSTEM_USER", "PromptToProduct-Agent"),
+            "priority": os.getenv("DEFAULT_PRIORITY", "Medium"),
+            "status": os.getenv("DEFAULT_STATUS", "In Progress")
         }
     
     def _create_epic_manually(self, epic_info: Dict[str, Any]) -> Optional[str]:
@@ -355,6 +383,9 @@ class SpecAgent:
 **ID:** {epic_id}  
 **Objective:** {epic_info['objective']}  
 **Owner:** {epic_info['owner']}  
+**Assigned To:** {epic_info['assigned_to']}  
+**Priority:** {epic_info['priority']}  
+**Status:** {epic_info['status']}  
 **Linked Features:** TBD  
 
 ## Business Context
@@ -369,8 +400,10 @@ class SpecAgent:
 - **Primary Product**: {epic_info.get('banking_domain', 'TBD')}
 - **Compliance Requirements**: {', '.join(epic_info.get('compliance_requirements', []))}
 
-## Created
-Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via Spec Agent
+## Metadata
+**Created By:** {epic_info['created_by']}  
+**Created:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
+**Last Modified:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
 
 """
             
@@ -413,6 +446,10 @@ Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via Spec Agent
 **ID:** {feature_id}  
 **Epic:** {feature_info.get('parent_epic', 'TBD')}  
 **Product Type:** {feature_info.get('product_type', 'TBD')}  
+**Owner:** {feature_info['owner']}  
+**Assigned To:** {feature_info['assigned_to']}  
+**Priority:** {feature_info['priority']}  
+**Status:** {feature_info['status']}  
 **Linked Stories:** TBD  
 {product_section}
 
@@ -435,8 +472,10 @@ Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via Spec Agent
 - Include user acceptance tests
 - Specify quality gates and performance benchmarks
 
-## Created
-Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via Spec Agent
+## Metadata
+**Created By:** {feature_info['created_by']}  
+**Created:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
+**Last Modified:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
 
 """
             
@@ -484,6 +523,10 @@ As a **{story_info['stakeholder']}**, I want to **{story_info['title']}** so tha
 
 **ID:** {story_id}  
 **Feature:** {story_info.get('parent_feature', 'TBD')}  
+**Owner:** {story_info['owner']}  
+**Assigned To:** {story_info['assigned_to']}  
+**Priority:** {story_info['priority']}  
+**Status:** {story_info['status']}  
 {user_story_section}{compliance_section}
 
 ## Acceptance Criteria
@@ -502,8 +545,10 @@ As a **{story_info['stakeholder']}**, I want to **{story_info['title']}** so tha
 - Feature is deployed and verified
 {"- Compliance requirements validated" if is_compliance else ""}
 
-## Created
-Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} via Spec Agent
+## Metadata
+**Created By:** {story_info['created_by']}  
+**Created:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
+**Last Modified:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
 
 """
             

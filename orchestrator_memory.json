@@ -1,0 +1,16 @@
+[
+  {
+    "timestamp": "2025-10-27T09:49:17.672322",
+    "prompt": "Create an epic for automated credit approval system",
+    "intent": "create_epic",
+    "target_agent": "spec-agent",
+    "banking_context": {
+      "is_banking": true,
+      "product_types": [
+        "loans"
+      ],
+      "compliance_areas": [],
+      "primary_product": "loans"
+    }
+  }
+]
