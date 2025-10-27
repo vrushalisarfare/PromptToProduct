@@ -7,6 +7,7 @@ import asyncio
 import json
 import sys
 import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 import logging
 
@@ -28,7 +29,11 @@ except ImportError as e:
     print("pip install mcp")
     sys.exit(1)
 
-from .config import get_config, REPO_CONFIG
+# Add current directory to path for imports
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
+
+from config import get_config, REPO_CONFIG
 
 
 async def main():
