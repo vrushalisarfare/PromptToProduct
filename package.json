@@ -1,0 +1,30 @@
+{
+  "name": "prompt-to-product",
+  "version": "1.0.0",
+  "description": "Spec-Driven Development framework for transforming prompts into products",
+  "main": "src/index.js",
+  "bin": {
+    "prompt-to-product": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/",
+    "start": "node src/cli.js"
+  },
+  "keywords": [
+    "spec-driven-development",
+    "sdd",
+    "prompt-to-product",
+    "ai-assisted-development"
+  ],
+  "author": "Vrushali Sarfare",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0"
+  },
+  "dependencies": {
+    "commander": "^11.0.0",
+    "yaml": "^2.3.0"
+  }
+}
