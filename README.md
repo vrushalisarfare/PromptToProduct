@@ -1,50 +1,56 @@
-# PromptToProduct - Complete Agent Orchestration System
+# PromptToProduct - LangGraph Agent Orchestration System
 
-A sophisticated AI agent system that converts natural language prompts into complete banking software specifications and implementations. Built with a 4-agent architecture for comprehensive prompt-to-code workflow automation.
+A sophisticated LangGraph-powered AI agent system that converts natural language prompts into complete banking software specifications and implementations. Built with advanced workflow orchestration for comprehensive prompt-to-code automation.
 
 ## 🚀 Quick Start
 
 ```bash
-# 1. Setup GitHub MCP integration (one-time setup)
-cat GitHub-MCP-Setup-Guide.md
+# 1. Install LangGraph dependencies
+pip install -r requirements.txt
 
-# 2. Process a natural language prompt
+# 2. Process a natural language prompt with LangGraph workflow
 python prompttoproduct.py "Create a credit card fraud detection system"
 
-# 3. Check system status  
+# 3. Check LangGraph system status  
 python prompttoproduct.py --status
 
-# 4. Validate all specifications
-python prompttoproduct.py --validate-all
-
-# 5. Run specific agent
-python prompttoproduct.py --agent orchestrator "Route banking loan requests"
+# 4. Get help with LangGraph commands
+python prompttoproduct.py --help
 ```
 
-> **Note**: This system integrates with GitHub's MCP server - no local server setup required!
+> **Note**: Now powered by LangGraph for advanced stateful workflow management!
 
-## 🏗️ System Architecture
+## 🏗️ LangGraph Architecture
 
-### 4-Agent System Overview
+### 5-Agent LangGraph Workflow
 
 ```
-┌─────────────────┐    ┌───────────────┐    ┌─────────────┐    ┌─────────────────┐
-│   Orchestrator  │───▶│  Spec Agent   │───▶│ Code Agent  │───▶│ Validation Agent│
-│   (Router)      │    │  (Markdown)   │    │ (Python)    │    │ (QA & GitHub)   │
-└─────────────────┘    └───────────────┘    └─────────────┘    └─────────────────┘
+┌─────────────────┐    ┌───────────────┐    ┌─────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Orchestrator  │───▶│  Spec Agent   │───▶│Validation   │───▶│ Project Agent   │───▶│   Finalize      │
+│   (Entry Node)  │    │  (Spec Gen)   │    │(Quality)    │    │ (GitHub Sync)   │    │  (Complete)     │
+└─────────────────┘    └───────────────┘    └─────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                   │                                          │
+         │                       │                   └──────────── Retry Logic ────────────────┘
+         │                       │                                     │
+         └─────▶ Code Agent ──────┘                                     │
+           (Parallel Path)                                              │
+                                                                        ▼
+                                                                ┌─────────────────┐
+                                                                │  Error Handler  │
+                                                                │   (Recovery)    │
+                                                                └─────────────────┘
 ```
 
-#### 1. **Orchestrator Agent** (`orchestrator.py`)
-- **Purpose**: Central routing and prompt classification system
+#### 1. **Orchestrator Node** (`orchestrator.py`)
+- **LangGraph Role**: Entry point with intelligent routing
 - **Capabilities**:
   - Natural language intent classification
   - Banking domain detection (products, compliance, fraud)
-  - Multi-agent workflow routing
-  - Context memory and session management
-  - Real-time status monitoring
+  - Conditional workflow routing based on prompt analysis
+  - State initialization for downstream agents
 
-#### 2. **Spec Agent** (`spec_agent.py`) 
-- **Purpose**: Convert prompts to structured markdown specifications
+#### 2. **Spec Agent Node** (`spec_agent.py`) 
+- **LangGraph Role**: Specification generation with validation loops
 - **Capabilities**:
   - Epic, Feature, and Story generation
   - Banking domain intelligence (loans, credit cards, fraud detection)
