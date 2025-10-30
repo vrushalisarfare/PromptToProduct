@@ -1,0 +1,14 @@
+[
+  {
+    "timestamp": "2025-10-30T05:48:12.481536",
+    "prompt": "Create a simple user registration feature",
+    "intent": "create_feature",
+    "target_agent": "spec-agent",
+    "banking_context": {
+      "is_banking": false,
+      "product_types": [],
+      "compliance_areas": [],
+      "primary_product": null
+    }
+  }
+]

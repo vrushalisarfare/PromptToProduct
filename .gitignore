@@ -2,6 +2,31 @@
 # Comprehensive gitignore for Python, Node.js, VS Code, and general development
 
 # =============================================================================
+# PromptToProduct Specific
+# =============================================================================
+# Generated specifications
+specs/epics/
+specs/features/
+specs/stories/
+
+# Backup files from LangGraph migration
+prompttoproduct_old.py
+*_old.py
+*_backup.py
+
+# Test files
+test_*.py
+*_test.py
+
+# LangGraph specific
+langgraph_*.py
+langchain_*.py
+
+# Redundant documentation
+*_Manifest.md
+GitHub-MCP-Setup-Guide.md
+
+# =============================================================================
 # Python
 # =============================================================================
 # Byte-compiled / optimized / DLL files

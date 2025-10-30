@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Orchestrator Agent - Main Hub for Prompt Classification and Routing
+Orchestrator Agent - Main Hub for Prompt Classification, Routing and GitHub Integration
 
 This agent serves as the central orchestration point for the PromptToProduct system,
-classifying user intents and delegating to appropriate domain agents.
+classifying user intents, delegating to appropriate domain agents, and managing GitHub integration.
 """
 import json
 import re
@@ -16,6 +16,16 @@ from datetime import datetime
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
+
+# Import configuration system
+try:
+    from src.config import get_config, get_github_config
+    config = get_config()
+    github_config = get_github_config()
+    CONFIG_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Configuration system not available: {e}")
+    CONFIG_AVAILABLE = False
 
 class PromptOrchestrator:
     """

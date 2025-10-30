@@ -611,38 +611,38 @@ class ValidationAgent:
         """
         Legacy method for GitHub project board updates.
         
-        NOTE: GitHub Projects integration has been moved to ProjectAgent.
+        NOTE: GitHub Projects integration is now handled via GitHub MCP server.
         This method is kept for backward compatibility but should not be used.
         """
         return {
             "success": False,
-            "reason": "GitHub Projects integration moved to ProjectAgent",
+            "reason": "GitHub Projects integration now handled via GitHub MCP server",
             "items_added": 0,
-            "recommendation": "Use ProjectAgent.create_spec_project_items() instead"
+            "recommendation": "Use GitHub MCP server tools instead"
         }
     
     def _create_spec_issue(self, spec_result: Dict[str, Any]) -> Dict[str, Any]:
         """
         Legacy method for creating GitHub issues from specs.
         
-        NOTE: GitHub issue creation has been moved to ProjectAgent.
+        NOTE: GitHub issue creation is now handled via GitHub MCP server.
         This method is kept for backward compatibility but should not be used.
         """
         return {
             "success": False,
-            "error": "Issue creation moved to ProjectAgent. Use ProjectAgent.create_spec_project_items() instead."
+            "error": "Issue creation now handled via GitHub MCP server. Use GitHub MCP tools instead."
         }
     
     def _add_issue_to_project(self, issue_number: int, project_number: str, org_name: str, spec_result: Dict[str, Any]) -> Dict[str, Any]:
         """
         Legacy method for adding issues to GitHub Projects.
         
-        NOTE: GitHub Projects integration has been moved to ProjectAgent.
+        NOTE: GitHub Projects integration is now handled via GitHub MCP server.
         This method is kept for backward compatibility but should not be used.
         """
         return {
             "success": False,
-            "error": "Project board integration moved to ProjectAgent. Use ProjectAgent.create_spec_project_items() instead."
+            "error": "Project board integration now handled via GitHub MCP server. Use GitHub MCP tools instead."
         }
     
     def get_validation_agent_status(self) -> Dict[str, Any]:

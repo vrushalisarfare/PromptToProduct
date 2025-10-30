@@ -43,7 +43,6 @@ try:
     from src.agents.spec_agent import SpecAgent  
     from src.agents.code_agent import CodeAgent
     from src.agents.validation_agent import ValidationAgent
-    from src.agents.project_agent import ProjectAgent
 except ImportError as e:
     print(f"❌ Error importing agents: {e}")
     print("Ensure all agent files are present in src/agents/")
@@ -89,7 +88,6 @@ class PromptToProduct:
         self.spec_agent = SpecAgent()
         self.code_agent = CodeAgent()
         self.validation_agent = ValidationAgent()
-        self.project_agent = ProjectAgent()
         
         # Create workflow graph
         self.workflow = self._create_workflow()
@@ -104,7 +102,6 @@ class PromptToProduct:
         workflow.add_node("spec_agent", self._spec_agent_node)
         workflow.add_node("code_agent", self._code_agent_node)
         workflow.add_node("validation_agent", self._validation_agent_node)
-        workflow.add_node("project_agent", self._project_agent_node)
         workflow.add_node("finalize", self._finalize_node)
         workflow.add_node("error_handler", self._error_handler_node)
         
@@ -136,7 +133,7 @@ class PromptToProduct:
             "validation_agent",
             self._route_after_validation,
             {
-                "project_agent": "project_agent",
+                "finalize": "finalize",
                 "spec_agent": "spec_agent",  # Retry if validation fails
                 "error": "error_handler"
             }
@@ -147,15 +144,6 @@ class PromptToProduct:
             self._route_after_code,
             {
                 "validation_agent": "validation_agent",
-                "project_agent": "project_agent",
-                "error": "error_handler"
-            }
-        )
-        
-        workflow.add_conditional_edges(
-            "project_agent",
-            self._route_after_project,
-            {
                 "finalize": "finalize",
                 "error": "error_handler"
             }
@@ -209,7 +197,7 @@ class PromptToProduct:
                 "entities": state["entities"]
             }
             
-            result = self.spec_agent.create_spec_from_prompt(agent_params)
+            result = self.spec_agent.process_specification_request(agent_params)
             
             state["spec_result"] = result
             state["workflow_status"] = "spec_complete"
@@ -272,7 +260,7 @@ class PromptToProduct:
                 "validate_all": True
             }
             
-            result = self.validation_agent.validate_specs(agent_params)
+            result = self.validation_agent.validate_specifications(agent_params)
             
             state["validation_result"] = result
             state["workflow_status"] = "validation_complete"
@@ -290,38 +278,6 @@ class PromptToProduct:
             state["error_count"] += 1
             state["messages"].append(
                 AIMessage(content=f"Validation agent error: {e}")
-            )
-        
-        return state
-    
-    def _project_agent_node(self, state: WorkflowState) -> WorkflowState:
-        """Project agent node - sync with GitHub Projects."""
-        try:
-            print("🚀 LangGraph: Syncing with GitHub Projects...")
-            
-            agent_params = {
-                "prompt": state["prompt"],
-                "created_specs": state.get("spec_result", {}).get("created_files", [])
-            }
-            
-            result = self.project_agent.sync_specs_to_project(agent_params)
-            
-            state["project_result"] = result
-            state["workflow_status"] = "project_complete"
-            
-            created_issues = len(result.get("created_issues", []))
-            state["messages"].append(
-                AIMessage(content=f"Created {created_issues} GitHub issues")
-            )
-            
-            print(f"✅ Created {created_issues} GitHub issues")
-            
-        except Exception as e:
-            print(f"❌ Project agent error: {e}")
-            state["workflow_status"] = "error"
-            state["error_count"] += 1
-            state["messages"].append(
-                AIMessage(content=f"Project agent error: {e}")
             )
         
         return state
@@ -411,7 +367,7 @@ class PromptToProduct:
             state["retry_count"] += 1
             return "spec_agent"
         
-        return "project_agent"
+        return "finalize"
     
     def _route_after_code(self, state: WorkflowState) -> str:
         """Route after code agent."""
@@ -422,13 +378,6 @@ class PromptToProduct:
         code_result = state.get("code_result", {})
         if code_result.get("generated_files"):
             return "validation_agent"
-        
-        return "project_agent"
-    
-    def _route_after_project(self, state: WorkflowState) -> str:
-        """Route after project agent."""
-        if state["workflow_status"] == "error":
-            return "error"
         
         return "finalize"
     
@@ -491,11 +440,10 @@ class PromptToProduct:
                 "orchestrator": "✅ Available",
                 "spec_agent": "✅ Available", 
                 "code_agent": "✅ Available",
-                "validation_agent": "✅ Available",
-                "project_agent": "✅ Available"
+                "validation_agent": "✅ Available"
             },
             "langgraph": "✅ Available",
-            "workflow_nodes": 7,
+            "workflow_nodes": 6,
             "timestamp": datetime.now().isoformat()
         }
 
