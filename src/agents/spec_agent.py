@@ -4,12 +4,14 @@ Spec Agent - Converts Developer Prompts into Structured Markdown Specs
 
 This agent specializes in converting natural language prompts into structured
 specifications (epics, features, stories) with banking domain intelligence.
+Enhanced with GitHub MCP integration for seamless repository synchronization.
 """
 import sys
 import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+import json
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
@@ -62,7 +64,7 @@ class SpecAgent:
             agent_params: Parameters from orchestrator including prompt, intent, etc.
             
         Returns:
-            Processing result with created specifications
+            Processing result with created specifications and GitHub MCP integration data
         """
         prompt = agent_params.get("prompt", "")
         intent = agent_params.get("intent", "")
@@ -80,6 +82,8 @@ class SpecAgent:
             "banking_context": banking_context,
             "status": "processing",
             "created_files": [],
+            "github_mcp_data": [],
+            "spec_type": None,
             "errors": []
         }
         
@@ -87,16 +91,24 @@ class SpecAgent:
             # Route to appropriate creation method
             if intent in ["create_epic"] or "epic" in prompt.lower():
                 spec_result = self.create_epic(prompt, banking_context, entities)
+                result["spec_type"] = "epic"
             elif intent in ["create_feature"] or "feature" in prompt.lower():
                 spec_result = self.create_feature(prompt, banking_context, entities)
+                result["spec_type"] = "feature"
             elif intent in ["create_story"] or "story" in prompt.lower():
                 spec_result = self.create_story(prompt, banking_context, entities)
+                result["spec_type"] = "story"
             else:
                 # Auto-detect based on content and context
                 spec_result = self._auto_detect_and_create(prompt, banking_context, entities)
+                result["spec_type"] = spec_result.get("detected_type", "unknown")
             
             result.update(spec_result)
             result["status"] = "completed"
+            
+            # Prepare GitHub MCP integration data
+            if result.get("created_files"):
+                result["github_mcp_data"] = self._prepare_github_mcp_data(result)
             
         except Exception as e:
             result["status"] = "error"
@@ -721,7 +733,11 @@ As a **{story_info['stakeholder']}**, I want to **{story_info['title']}** so tha
             }
             
             # Prepare data for GitHub MCP integration
-            self._prepare_github_mcp_data(result, github_config, relative_path, file_content)
+            if CONFIG_AVAILABLE:
+                github_config = get_github_config()
+                mcp_data = self._prepare_github_mcp_data_simple(result, github_config, relative_path, file_content)
+                if mcp_data:
+                    result.update(mcp_data)
             
             print(f"📋 GitHub integration prepared for {spec_type}: {issue_title}")
             return result
@@ -730,26 +746,35 @@ As a **{story_info['stakeholder']}**, I want to **{story_info['title']}** so tha
             print(f"⚠️ GitHub sync warning: {e}")
             return None
     
-    def _prepare_github_mcp_data(self, result: Dict[str, Any], github_config, relative_path: str, file_content: str):
+    def _prepare_github_mcp_data_simple(self, result: Dict[str, Any], github_config, relative_path: str, file_content: str) -> Optional[Dict[str, Any]]:
         """Prepare data structure for GitHub MCP server integration."""
-        # Prepare file creation data
-        result["mcp_file_data"] = {
-            "owner": github_config.repo_owner,
-            "repo": github_config.repo_name, 
-            "path": relative_path,
-            "content": file_content,
-            "message": f"Add {result['spec_type']} specification: {result['issue_title']}",
-            "branch": "main"  # Could be configurable
-        }
-        
-        # Prepare issue creation data
-        result["mcp_issue_data"] = {
-            "owner": github_config.repo_owner,
-            "repo": github_config.repo_name,
-            "title": result["issue_title"],
-            "body": result["issue_body"],
-            "labels": self._generate_github_labels(result["spec_type"])
-        }
+        try:
+            # Prepare file creation data
+            mcp_file_data = {
+                "owner": github_config.repo_owner,
+                "repo": github_config.repo_name, 
+                "path": relative_path,
+                "content": file_content,
+                "message": f"Add {result.get('spec_type', 'specification')} specification: {result.get('issue_title', 'New spec')}",
+                "branch": "main"  # Could be configurable
+            }
+            
+            # Prepare issue creation data
+            mcp_issue_data = {
+                "owner": github_config.repo_owner,
+                "repo": github_config.repo_name,
+                "title": result.get("issue_title", "New Specification"),
+                "body": result.get("issue_body", "Auto-generated specification"),
+                "labels": self._generate_github_labels(result.get("spec_type", "unknown"))
+            }
+            
+            return {
+                "mcp_file_data": mcp_file_data,
+                "mcp_issue_data": mcp_issue_data
+            }
+        except Exception as e:
+            print(f"Error preparing MCP data: {e}")
+            return None
     
     def _generate_github_labels(self, spec_type: str) -> List[str]:
         """Generate appropriate GitHub labels for the spec type."""
@@ -821,18 +846,199 @@ As a **{story_info['stakeholder']}**, I want to **{story_info['title']}** so tha
         
         return body
     
+    def _prepare_github_mcp_data(self, result: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Prepare GitHub MCP integration data for file creation and issue management.
+        
+        Args:
+            result: The processing result containing created files and spec information
+            
+        Returns:
+            List of MCP integration data items
+        """
+        mcp_data_items = []
+        
+        try:
+            if CONFIG_AVAILABLE:
+                github_config = get_github_config()
+                
+                for file_path in result.get("created_files", []):
+                    # Read the created file content
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            file_content = f.read()
+                    except Exception as e:
+                        print(f"Warning: Could not read file {file_path}: {e}")
+                        continue
+                    
+                    # Convert absolute path to relative path for GitHub
+                    file_path_obj = Path(file_path)
+                    try:
+                        relative_path = str(file_path_obj.relative_to(project_root))
+                    except ValueError:
+                        relative_path = f"specs/{file_path_obj.name}"
+                    
+                    # Prepare file data for MCP
+                    mcp_file_data = {
+                        "owner": github_config.repo_owner,
+                        "repo": github_config.repo_name,
+                        "path": relative_path,
+                        "content": file_content,
+                        "message": f"Add {result.get('spec_type', 'specification')}: {self._extract_title_from_content(file_content)}",
+                        "branch": "main"
+                    }
+                    
+                    # Prepare issue data for MCP
+                    mcp_issue_data = {
+                        "owner": github_config.repo_owner,
+                        "repo": github_config.repo_name,
+                        "title": f"📝 {result.get('spec_type', 'Specification').title()}: {self._extract_title_from_content(file_content)}",
+                        "body": self._generate_github_issue_body(result, relative_path, file_content),
+                        "labels": self._generate_github_labels(result)
+                    }
+                    
+                    mcp_data_items.append({
+                        "spec_file": relative_path,
+                        "spec_type": result.get("spec_type", "unknown"),
+                        "mcp_file_data": mcp_file_data,
+                        "mcp_issue_data": mcp_issue_data,
+                        "issue_title": mcp_issue_data["title"]
+                    })
+                    
+        except Exception as e:
+            print(f"Warning: Could not prepare GitHub MCP data: {e}")
+        
+        return mcp_data_items
+    
+    def _extract_title_from_content(self, content: str) -> str:
+        """
+        Extract title from markdown content.
+        
+        Args:
+            content: Markdown content
+            
+        Returns:
+            Extracted title or default
+        """
+        lines = content.split('\n')
+        for line in lines:
+            if line.startswith('# '):
+                return line[2:].strip()
+            elif line.startswith('**') and line.endswith('**'):
+                return line[2:-2].strip()
+        return "New Specification"
+    
+    def _generate_github_issue_body(self, result: Dict[str, Any], file_path: str, content: str) -> str:
+        """
+        Generate GitHub issue body for the specification.
+        
+        Args:
+            result: Processing result
+            file_path: Relative file path
+            content: File content
+            
+        Returns:
+            GitHub issue body
+        """
+        title = self._extract_title_from_content(content)
+        spec_type = result.get("spec_type", "specification").title()
+        
+        body = f"""## {spec_type} Created: {title}
+
+**File:** `{file_path}`
+**Type:** {spec_type}
+**Created:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Agent:** {self.agent_id}
+
+### Overview
+This {spec_type.lower()} was automatically generated from the prompt:
+> {result.get('input_prompt', 'N/A')}
+
+### Banking Context"""
+        
+        banking_context = result.get("banking_context", {})
+        if banking_context.get("is_banking"):
+            if banking_context.get("products"):
+                body += f"\n- **Products:** {', '.join(banking_context['products'])}"
+            if banking_context.get("compliance"):
+                body += f"\n- **Compliance:** {', '.join(banking_context['compliance'])}"
+        else:
+            body += "\n- No specific banking context detected"
+        
+        body += f"""
+
+### Next Steps
+- [ ] Review {spec_type.lower()} content
+- [ ] Validate requirements and acceptance criteria
+- [ ] Plan implementation approach
+- [ ] Assign to development team
+- [ ] Create related specifications if needed
+
+### Links
+- Specification file: [`{file_path}`]({file_path})
+- Generated from prompt using PromptToProduct system
+
+**Auto-generated by PromptToProduct Spec Agent**"""
+        
+        return body
+    
+    def _generate_github_labels(self, result: Dict[str, Any]) -> List[str]:
+        """
+        Generate appropriate GitHub labels for the specification.
+        
+        Args:
+            result: Processing result
+            
+        Returns:
+            List of labels
+        """
+        labels = ["specification", "auto-generated"]
+        
+        spec_type = result.get("spec_type")
+        if spec_type:
+            labels.append(spec_type)
+        
+        # Add banking labels
+        banking_context = result.get("banking_context", {})
+        if banking_context.get("is_banking"):
+            labels.append("banking")
+            
+            products = banking_context.get("products", [])
+            for product in products[:2]:  # Limit to 2 product labels
+                labels.append(f"banking-{product}")
+            
+            compliance = banking_context.get("compliance", [])
+            if compliance:
+                labels.append("compliance")
+        
+        # Add priority and type labels
+        labels.extend(["medium-priority", "enhancement"])
+        
+        return labels
+    
     def get_spec_agent_status(self) -> Dict[str, Any]:
         """Get current spec agent status."""
+        github_configured = False
+        if CONFIG_AVAILABLE:
+            try:
+                github_config = get_github_config()
+                github_configured = github_config.is_configured
+            except:
+                pass
+        
         return {
             "agent_id": self.agent_id,
-            "version": self.version,
+            "version": "1.1",
             "status": "active",
             "schema_processor_available": self.schema_processor is not None,
+            "github_mcp_integration": True,
+            "github_configured": github_configured,
             "supported_actions": ["create_epic", "create_feature", "create_story"],
             "inputs": ["specs/prompt_schema.json"],
             "outputs": ["specs/**"],
             "banking_domain_support": True,
-            "compliance_story_support": True
+            "compliance_story_support": True,
+            "langgraph_compatible": True
         }
 
 

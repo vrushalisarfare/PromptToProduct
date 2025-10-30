@@ -9,6 +9,9 @@ specs/epics/
 specs/features/
 specs/stories/
 
+# Generated code directory
+code/
+
 # Backup files from LangGraph migration
 prompttoproduct_old.py
 *_old.py

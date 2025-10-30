@@ -905,38 +905,97 @@ class PromptToProduct:
         return state
     
     def _route_after_orchestrator(self, state: WorkflowState) -> str:
-        """Route after orchestrator based on intent."""
+        """Route after orchestrator based on spec-driven development framework."""
         if state["workflow_status"] == "error":
             return "error"
         
         intent = state.get("intent", "")
         
-        if intent in ["create_epic", "create_feature", "create_story", "spec_generation"]:
+        # Spec-driven development: Always start with specifications
+        if intent in ["create_epic", "create_feature", "create_story", "spec_generation", "create_spec"]:
             return "spec_agent"
-        elif intent in ["code_generation", "implement_feature"]:
-            return "code_agent"
+        elif intent in ["code_generation", "implement_feature", "implement_code"]:
+            # Check if specifications exist for code implementation
+            if self._has_relevant_specifications(state):
+                state["spec_driven"] = True
+                return "code_agent"
+            else:
+                # No specs found - create them first
+                print("🔄 Spec-driven workflow: Creating specifications before code implementation...")
+                state["spec_driven"] = True
+                state["original_intent"] = intent  # Remember we want code after specs
+                return "spec_agent"
         else:
             return "spec_agent"  # Default to spec agent
     
     def _route_after_spec(self, state: WorkflowState) -> str:
-        """Route after spec agent."""
+        """Route after spec agent with spec-driven development support."""
         if state["workflow_status"] == "error":
             return "error"
+        
+        # Check if this was part of a spec-driven code implementation flow
+        if state.get("spec_driven") and state.get("original_intent") in ["code_generation", "implement_feature", "implement_code"]:
+            print("🔄 Spec-driven workflow: Proceeding to code implementation...")
+            # Clear the original intent to prevent loops
+            state["original_intent"] = None
+            return "code_agent"
         
         return "validation_agent"
     
     def _route_after_validation(self, state: WorkflowState) -> str:
-        """Route after validation agent with better loop prevention."""
+        """Route after validation agent with spec-driven development support."""
         if state["workflow_status"] == "error":
             return "error"
         
         validation_result = state.get("validation_result", {})
         score = validation_result.get("overall_score", 0.0)
         
-        # Simple but effective loop prevention - just proceed if validation completes
-        # Validation agents are working correctly, so we should trust their output
+        # Check if this was part of a spec-driven code implementation flow
+        if state.get("spec_driven") and state.get("original_intent") in ["code_generation", "implement_feature", "implement_code"]:
+            print(f"✅ Spec validation completed with score: {score:.2f}, proceeding to code implementation...")
+            # Clear the original intent to prevent loops
+            state["original_intent"] = None
+            return "code_agent"
+        
         print(f"✅ Validation completed with score: {score:.2f}, proceeding to finalize")
         return "finalize"
+    
+    def _has_relevant_specifications(self, state: WorkflowState) -> bool:
+        """Check if relevant specifications exist for code implementation."""
+        prompt = state.get("prompt", "").lower()
+        
+        # Check for existing specification files
+        spec_dirs = [
+            project_root / "specs" / "features",
+            project_root / "specs" / "epics", 
+            project_root / "specs" / "stories"
+        ]
+        
+        # Banking domain keywords to match against specs
+        banking_keywords = [
+            "payment", "fraud", "loan", "credit", "account", 
+            "transaction", "banking", "financial", "api"
+        ]
+        
+        # Extract keywords from prompt
+        prompt_keywords = [word for word in banking_keywords if word in prompt]
+        
+        if not prompt_keywords:
+            return False
+        
+        # Check if any spec files contain relevant keywords
+        for spec_dir in spec_dirs:
+            if spec_dir.exists():
+                for spec_file in spec_dir.glob("*.md"):
+                    try:
+                        content = spec_file.read_text().lower()
+                        if any(keyword in content for keyword in prompt_keywords):
+                            print(f"🔍 Found relevant specification: {spec_file.name}")
+                            return True
+                    except Exception:
+                        continue
+        
+        return False
     
     def _route_after_code(self, state: WorkflowState) -> str:
         """Route after code agent."""
@@ -1035,7 +1094,12 @@ def main():
 Examples:
   python prompttoproduct.py "Create a fraud detection system"
   python prompttoproduct.py --status
+  python prompttoproduct.py --config
   python prompttoproduct.py --help
+  
+Environment Setup:
+  See README.md - Environment Setup section for detailed instructions
+  Quick setup: Set GITHUB_PERSONAL_ACCESS_TOKEN environment variable
         """
     )
     
@@ -1049,6 +1113,12 @@ Examples:
         "--status", 
         action="store_true", 
         help="Show system status"
+    )
+    
+    parser.add_argument(
+        "--config", 
+        action="store_true", 
+        help="Show configuration status and validation"
     )
     
     parser.add_argument(
@@ -1101,6 +1171,45 @@ Examples:
                 for feature, status_text in status['features'].items():
                     print(f"  {feature}: {status_text}")
                 print(f"\nTimestamp: {status['timestamp']}")
+            return
+        
+        # Handle configuration check
+        if args.config:
+            from src.config import get_config
+            config = get_config()
+            validation = config.validate_configuration()
+            
+            print("\n🔧 PROMPTTOPRODUCT CONFIGURATION STATUS")
+            print("=" * 60)
+            
+            if validation['valid']:
+                print("✅ Configuration is valid")
+            else:
+                print("❌ Configuration has issues")
+            
+            if validation.get('github_token_configured'):
+                print("✅ GitHub Personal Access Token is configured")
+            else:
+                print("❌ GitHub Personal Access Token is NOT configured")
+                print("   Set environment variable: GITHUB_PERSONAL_ACCESS_TOKEN")
+                print("   Or run: .\\setup-environment.ps1 -GitHubToken <your_token>")
+            
+            print(f"\n📋 Configuration Summary:")
+            summary = validation['summary']
+            for key, value in summary.items():
+                print(f"  {key}: {value}")
+            
+            if validation['issues']:
+                print(f"\n❌ Issues:")
+                for issue in validation['issues']:
+                    print(f"  - {issue}")
+            
+            if validation['warnings']:
+                print(f"\n⚠️ Warnings:")
+                for warning in validation['warnings']:
+                    print(f"  - {warning}")
+            
+            print(f"\nFor environment setup help, see README.md - Environment Setup section")
             return
         
         # Handle GitHub MCP testing

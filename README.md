@@ -1,657 +1,827 @@
-# PromptToProduct - Unified LangGraph Orchestration System
+# PromptToProduct: Unified Banking Agent System
 
-A sophisticated unified AI system that converts natural language prompts into complete software specifications and implementations. Built with integrated LangGraph workflow orchestration and intelligent prompt classification for comprehensive prompt-to-code automation.
+> **A comprehensive LangGraph-powered agentic orchestration system for banking domain development with intelligent prompt-to-product workflows.**
+
+🏦 **Banking Domain Intelligence** | 🤖 **Multi-Agent Orchestration** | 📋 **Spec-Driven Development** | 🔄 **Complete Automation**
+
+---
+
+## 🌟 Overview
+
+PromptToProduct is an advanced agentic orchestration system that transforms natural language prompts into complete banking specifications and production-ready code. Built on LangGraph with intelligent routing, the system enforces spec-driven development and provides comprehensive banking domain intelligence.
+
+### 🎯 Core Value Proposition
+- **Intelligent Routing**: Automatically directs prompts to appropriate agents based on intent and domain
+- **Spec-Driven Development**: Enforces specification creation before code implementation 
+- **Banking Domain Intelligence**: Built-in understanding of banking products, compliance, and workflows
+- **Complete Automation**: End-to-end workflow from prompt to validated specifications and code
+- **Multi-Agent Coordination**: Seamless collaboration between SpecAgent, CodeAgent, and ValidationAgent
+
+### 🏗️ System Architecture
+
+```mermaid
+graph TB
+    User[User Input] --> O[Orchestrator]
+    O --> |Specs Creation| SA[SpecAgent]
+    O --> |Code Implementation| CA[CodeAgent] 
+    O --> |Testing & Validation| VA[ValidationAgent]
+    SA --> |Epic/Feature/Story| Specs[(Specifications)]
+    CA --> |Python/API Code| Code[(Generated Code)]
+    VA --> |Test Results| Valid[(Validation)]
+    Specs --> CA
+    Code --> VA
+```
 
 ## 🚀 Quick Start
 
-```bash
-# 1. Install LangGraph dependencies
-pip install -r requirements.txt
-
-# 2. Process a natural language prompt with unified workflow
-python prompttoproduct.py "Create a credit card fraud detection system"
-
-# 3. Check unified system status  
-python prompttoproduct.py --status
-
-# 4. Get JSON output for automation
-python prompttoproduct.py "Build payment API" --json
-
-# 5. Get help with commands
-python prompttoproduct.py --help
-```
-
-> **Latest**: Now features unified architecture with integrated orchestration and LangGraph workflows!
-
-## 🏗️ Unified Architecture
-
-### Integrated 4-Agent Workflow
-
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           PromptToProduct Unified System                        │
-│  ┌─────────────────┐    ┌───────────────┐    ┌─────────────┐    ┌─────────────┐ │
-│  │  Orchestration  │───▶│  Spec Agent   │───▶│ Validation  │───▶│  Finalize   │ │
-│  │  Intelligence   │    │  (Spec Gen)   │    │ (Quality)   │    │ (Complete)  │ │
-│  │  • Classification│    │               │    │             │    │             │ │
-│  │  • Banking Domain│    │               │    │             │    │             │ │
-│  │  • Intent Routing│    │               │    │             │    │             │ │
-│  │  • Memory Context│    │               │    │             │    │             │ │
-│  └─────────────────┘    └───────────────┘    └─────────────┘    └─────────────┘ │
-│           │                       │                   │                          │
-│           └─────▶ Code Agent ──────┘                   │                          │
-│             (Parallel Path)                            │                          │
-│                                                        ▼                          │
-│                                                ┌─────────────┐                    │
-│                                                │Error Handler│                    │
-│                                                │ (Recovery)  │                    │
-│                                                └─────────────┘                    │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
-
-#### **Unified System Features**
-
-**🧠 Integrated Orchestration Intelligence:**
-- Natural language intent classification (create_spec, implement_code, validate)
-- Banking domain detection (loans, payments, credit cards, investments, compliance)
-- Entity extraction (epic/feature/story references, technical terms)
-- Confidence scoring for routing decisions
-- Memory context persistence across conversations
-
-**⚡ LangGraph Workflow Management:**
-- Stateful workflow execution with conditional routing
-- Error handling and recovery mechanisms
-- Circuit breaker protection against infinite loops
-- Enhanced recursion limit management
-
-#### **Agent Components**
-
-**1. Spec Agent** (`spec_agent.py`) 
-- **Role**: Specification generation with intelligent domain detection
-- **Capabilities**:
-  - Epic, Feature, and Story generation
-  - Banking domain intelligence (loans, credit cards, fraud detection)
-  - Compliance story creation (KYC, AML, PCI-DSS)
-  - Schema processor integration
-  - Manual fallback systems
-
-**2. Code Agent** (`code_agent.py`)
-- **Role**: Generate Python implementations from specifications
-- **Capabilities**:
-  - Banking feature code generation
-  - Fraud detection models with ML capabilities
-  - Compliance validation systems
-  - Repository pattern implementations
-  - Automated Git workflow integration
-
-**3. Validation Agent** (`validation_agent.py`)
-- **Role**: Quality assurance and compliance validation
-- **Capabilities**:
-  - Specification completeness validation
-  - Banking compliance scoring
-  - Code quality assessment
-  - Architectural recommendations
-  - Integration with GitHub MCP server
-
-## 📋 Key Features
-
-### 🧠 Intelligent Classification
-- **Intent Recognition**: Automatically classifies prompts (create_spec, implement_code, validate)
-- **Domain Detection**: Banking products (credit cards, loans, payments, investments)
-- **Compliance Awareness**: KYC, AML, PCI-DSS, SOX, Basel III keyword detection
-- **Entity Extraction**: Finds epic/feature/story references and technical terms
-
-### 🔄 Unified Workflow Management
-- **Integrated Orchestration**: Single system combining classification + execution
-- **Memory Persistence**: Conversation context maintained across sessions
-- **Error Recovery**: Robust error handling with circuit breakers
-- **GitHub Integration**: Seamless project management via MCP server
-
-## 🛠️ Installation & Setup
-
 ### Prerequisites
-```bash
+```powershell
 # Python 3.8+
 python --version
 
-# LangGraph and dependencies
-pip install langgraph langchain langchain-core
-
-# Git (for repository operations)
-git --version
-```
-
-### Installation
-```bash
-# Clone repository
-git clone https://github.com/vrushalisarfare/PromptToProduct.git
-cd PromptToProduct
-
 # Install dependencies
 pip install -r requirements.txt
-
-# Test unified system
-python prompttoproduct.py --status
 ```
 
-### System Status Check
-```bash
-# Verify unified system installation
-python prompttoproduct.py --status
+### Installation & Setup
+```powershell
+# Clone and navigate
+git clone <repository-url>
+cd PromptToProduct-1
 
-# Expected output:
-🎯 PROMPTTOPRODUCT UNIFIED SYSTEM STATUS
-============================================================
-System: PromptToProduct Unified
-Version: 2.1.0
-Architecture: Unified LangGraph + Orchestration
-Workflow Nodes: 6
-Memory Entries: 0
+# Install requirements
+pip install -r requirements.txt
 
-Agent Status:
-  spec_agent: ✅ Available
-  code_agent: ✅ Available
-  validation_agent: ✅ Available
-
-Features:
-  orchestration: ✅ Integrated
-  classification: ✅ Banking domain detection
-  routing: ✅ Intent-based routing
-  memory: ✅ Context persistence
-  langgraph: ✅ Stateful workflows
+# Configure environment (optional)
+# Add GitHub token for enhanced capabilities
+$env:GITHUB_TOKEN = "your_github_token_here"
 ```
 
-### Directory Structure
-```
-PromptToProduct/
-├── prompttoproduct.py          # Unified system entry point
-├── README.md                   # Project documentation
-├── requirements.txt            # Python dependencies
-├── .env                       # Environment configuration
-├── .gitignore                 # Git ignore patterns
-├── src/
-│   ├── agents/                 # Agent components
-│   │   ├── spec_agent.py       # Specification generator
-│   │   ├── code_agent.py       # Code implementation agent
-│   │   └── validation_agent.py # Quality validation agent
-│   ├── config.py              # Configuration management
-│   └── MyBank/                # Generated banking code structure
-├── specs/                     # Generated specifications (gitignored)
-│   ├── epics/                 # Epic specifications
-│   ├── features/              # Feature specifications
-│   └── stories/               # User story specifications
-├── prompts/                   # Prompts library and examples
-│   ├── banking/               # Banking domain prompts
-│   ├── system/                # System management prompts
-│   └── examples/              # Complete workflow examples
-└── .github/
-    └── workflows/
-        └── copilot_agents.yaml    # Agent configuration
-```
-        ├── copilot_agents.yaml     # Copilot Agents workflow definition
-        └── copilot_agents_manifest.json # Generated manifest (JSON)
+### Basic Usage
+
+#### 1. Simple Prompt Execution
+```python
+from prompttoproduct import PromptToProductSystem
+
+# Initialize system
+system = PromptToProductSystem()
+
+# Direct prompt processing
+result = system.process("Create an epic for digital loan origination platform")
+print(result)
 ```
 
-## 📖 Usage Examples
-
-### 📚 Prompts Library
-Explore the comprehensive prompts library for tested and validated examples:
-
-## 💻 Usage Examples
-
-### Basic Commands
-```bash
-# Check system status
-python prompttoproduct.py --status
-
-# Get JSON output for automation
-python prompttoproduct.py --status --json
-
-# Enable verbose logging
-python prompttoproduct.py "Create user authentication" --verbose
+#### 2. Interactive CLI Mode
+```powershell
+python prompttoproduct.py
 ```
 
-### Specification Generation
-```bash
-# Generate banking feature specifications
-python prompttoproduct.py "Create a real-time fraud detection system for credit card transactions"
+#### 3. Programmatic Integration
+```python
+# Advanced usage with state management
+system = PromptToProductSystem()
+state = {
+    "prompt": "Build a fraud detection API with real-time monitoring",
+    "context": {"domain": "banking", "compliance": ["PCI-DSS", "AML"]}
+}
 
-# Build API specifications
-python prompttoproduct.py "Build a REST API for loan applications with approval workflow"
-
-# Compliance feature creation
-python prompttoproduct.py "Create KYC compliance validation for new customer onboarding"
-
-# User interface features
-python prompttoproduct.py "Create a user dashboard for account management"
-
-# Payment processing features
-python prompttoproduct.py "Build a payment processing system with real-time validation"
+result = system.execute_workflow(state)
 ```
 
-### Banking Domain Examples
-```bash
-# Credit card features
-python prompttoproduct.py "Create credit card application approval system"
+### Example Prompts
 
-# Loan processing
-python prompttoproduct.py "Build automated loan underwriting with risk assessment"
-
-# Account management
-python prompttoproduct.py "Create multi-currency savings account management"
-
-# Fraud detection
-python prompttoproduct.py "Build ML-powered transaction fraud detection"
-
-# Compliance
-python prompttoproduct.py "Create AML transaction monitoring system"
+#### Epic Creation
+```
+"Create an epic for digital loan origination platform with AI-powered risk assessment"
 ```
 
-### Output Formats
-```bash
-# Standard workflow output
-python prompttoproduct.py "Create payment gateway"
-
-# JSON output for automation
-python prompttoproduct.py "Create payment gateway" --json
-
-# Status check with detailed info
-python prompttoproduct.py --status --verbose
+#### Feature Development
+```
+"Add a feature for real-time fraud detection in credit card transactions under epic E001"
 ```
 
-# Generate specs only  
-python prompttoproduct.py --agent spec-agent "Create credit card application epic"
-
-# Generate code only
-python prompttoproduct.py --agent code-agent "Implement fraud detection models"
-
-# Validate specifications
-python prompttoproduct.py --agent validation-agent "Check spec completeness"
+#### Code Implementation
 ```
+"Implement REST API for loan application submission with validation"
+```
+
+#### Complete Workflow
+```
+"Create specifications and implement digital banking platform with mobile app"
+```
+
+## 🏗️ System Components
+
+### 🎭 Multi-Agent Architecture
+
+#### 1. **Orchestrator Agent** 
+- **Purpose**: Central coordination and intelligent routing
+- **Capabilities**: 
+  - Prompt intent classification
+  - Agent routing and workflow management
+  - State coordination across agents
+  - Banking domain detection and routing
+- **Key Features**:
+  - Spec-driven development enforcement
+  - Intelligent workflow state management
+  - Error handling and recovery
+  - Cross-agent communication
+
+#### 2. **SpecAgent** (Requirements & Architecture)
+- **Purpose**: Creates comprehensive banking specifications
+- **Outputs**: 
+  - Epic specifications (high-level initiatives)
+  - Feature specifications (product capabilities)
+  - User stories (implementation tasks)
+  - Compliance requirements
+- **Banking Intelligence**:
+  - Product type detection (loans, payments, cards)
+  - Compliance requirement mapping
+  - Regulatory framework integration
+  - Risk assessment considerations
+
+#### 3. **CodeAgent** (Implementation & Development)
+- **Purpose**: Generates production-ready banking code
+- **Capabilities**:
+  - RESTful API development
+  - Database schema generation
+  - Frontend component creation
+  - Integration layer implementation
+- **Banking Specializations**:
+  - Payment processing systems
+  - Fraud detection algorithms
+  - Compliance validation logic
+  - Risk calculation engines
+  - KYC/AML implementation
+
+#### 4. **ValidationAgent** (Testing & Quality Assurance)
+- **Purpose**: Comprehensive testing and validation
+- **Outputs**:
+  - Unit test suites
+  - Integration test scenarios
+  - Security validation tests
+  - Performance benchmarks
+- **Banking Focus**:
+  - Compliance testing (PCI-DSS, SOX, etc.)
+  - Security vulnerability assessment
+  - Performance under banking loads
+  - Regulatory requirement validation
+
+### 🧠 LangGraph Orchestration
+
+The system uses LangGraph for sophisticated workflow management:
+
+#### Workflow States
+```python
+class PromptToProductState(TypedDict):
+    prompt: str
+    response: str 
+    agent_responses: Dict[str, Any]
+    banking_context: Dict[str, Any]
+    specs_created: bool
+    code_generated: bool
+    validation_complete: bool
+```
+
+#### Intelligent Routing Logic
+- **Intent Classification**: Automatically determines prompt purpose
+- **Domain Detection**: Identifies banking products and compliance needs
+- **Spec-Driven Enforcement**: Ensures specifications exist before code generation
+- **Error Recovery**: Handles failures and provides alternative routing
+
+#### State Management
+- **Persistent Context**: Maintains conversation state across interactions
+- **Cross-Agent Communication**: Shares context between agents
+- **Progress Tracking**: Monitors workflow completion status
 
 ## 🏦 Banking Domain Intelligence
 
-### Supported Banking Products
-- **Credit Cards**: Application processing, fraud detection, rewards management
-- **Loans**: Underwriting, risk assessment, payment processing
-- **Accounts**: Savings, checking, multi-currency support
-- **Payments**: Real-time processing, validation, settlement
-- **Investments**: Portfolio management, trading, risk analysis
+### 📊 Supported Product Types
+- **Loans**: Mortgage, personal, auto, business loans
+- **Credit Cards**: Rewards, secured, corporate cards
+- **Payments**: Wire transfers, ACH, mobile payments, P2P
+- **Investments**: Portfolio management, trading, robo-advisors
+- **Accounts**: Savings, checking, certificates of deposit
+- **Digital Banking**: Mobile apps, online platforms, APIs
 
-### Compliance Framework Support
-- **KYC (Know Your Customer)**: Identity verification, due diligence
-- **AML (Anti-Money Laundering)**: Transaction monitoring, suspicious activity reporting
-- **PCI-DSS**: Payment card industry security standards
-- **SOX**: Sarbanes-Oxley compliance for financial reporting
-- **Basel III**: Banking regulatory framework compliance
+### 🔒 Compliance Framework
+- **Regulatory**: KYC, AML, SOX, GDPR, PCI-DSS, Basel III
+- **Security**: Encryption, tokenization, fraud detection
+- **Risk Management**: Credit risk, operational risk, stress testing
 
-### Example Banking Workflows
-
-#### Credit Card System
-```bash
-python prompttoproduct.py "Create credit card application processing system with fraud detection"
-```
-**Generated Output:**
-- Epic: Credit Card Management Platform
-- Features: Application processing, real-time fraud detection, account management
-- Stories: User application, credit scoring, transaction monitoring
-- Code: CreditCardModel, FraudDetector, TransactionMonitor classes
-
-#### Loan Processing System
-```bash
-python prompttoproduct.py "Build automated loan underwriting with ML risk assessment"
-```
-**Generated Output:**
-- Epic: Intelligent Loan Processing Platform
-- Features: Automated underwriting, risk assessment, approval workflow
-- Stories: Loan application, credit analysis, decision engine
-- Code: LoanProcessor, RiskAssessment, UnderwritingEngine classes
-
-#### Compliance Monitoring
-```bash
-python prompttoproduct.py "Create AML transaction monitoring with suspicious activity alerts"
-```
-**Generated Output:**
-- Epic: AML Compliance Management System
-- Features: Transaction monitoring, suspicious activity detection, regulatory reporting
-- Stories: Real-time monitoring, alert generation, compliance reporting
-- Code: AMLMonitor, SuspiciousActivityDetector, ComplianceReporter classes  
-python prompttoproduct.py "Build loan origination system with risk assessment"
-```
-**Generates:**
-- Epic: Loan Origination Platform
-- Features: Application intake, risk scoring, approval workflow
-- Code: LoanModel, RiskAssessment, ApprovalEngine
-- Validation: Regulatory compliance, data validation
-
-### Fraud Detection
-```bash
-python prompttoproduct.py "Implement real-time fraud monitoring for all transactions"
-## 🔧 Configuration
-
-### Environment Setup
-Copy the example configuration and customize for your environment:
-```bash
-# Copy the example configuration
-cp .env.example .env
-
-# Edit your configuration
-# .env file
-GITHUB_PERSONAL_ACCESS_TOKEN=your_github_token_here
-GITHUB_REPO_OWNER=vrushalisarfare
-GITHUB_REPO_NAME=PromptToProduct
-AUTO_SYNC_GITHUB=true
-DEBUG_MODE=false
-```
-
-### Complete Configuration Options
-See `.env.example` for all available configuration options including:
-- **GitHub Integration**: Token, repository, and sync settings
-- **Banking Domain**: Compliance areas and product types
-- **Agent Behavior**: Memory size, validation thresholds, auto-validation
-- **System Settings**: Debug mode, logging, timeout settings
-
-### System Configuration
-The unified system supports various configuration options:
+### 🎯 Domain-Specific Routing
+The system automatically detects banking domains and routes to appropriate agents:
 
 ```python
-# Default configuration in prompttoproduct.py
-DEFAULT_CONFIG = {
-    "recursion_limit": 50,
-    "max_execution_time": 300,
-    "validation_threshold": 0.3,
-    "memory_context_window": 10,
-    "enable_memory_persistence": True
+def detect_banking_domain(prompt: str) -> Dict[str, Any]:
+    """Intelligent banking domain detection"""
+    domains = {
+        'loans': ['loan', 'mortgage', 'lending', 'underwriting'],
+        'payments': ['payment', 'transfer', 'ACH', 'wire'],
+        'fraud': ['fraud', 'detection', 'suspicious', 'anomaly'],
+        'compliance': ['KYC', 'AML', 'PCI', 'SOX', 'GDPR']
+    }
+    # Advanced NLP-based domain classification
+```
+
+## 📋 Spec-Driven Development Framework
+
+### 🔄 Workflow Enforcement
+The system enforces a specification-first approach:
+
+1. **Specification Check**: Before any code generation, system verifies relevant specifications exist
+2. **Automatic Spec Creation**: If specs missing, routes to SpecAgent first
+3. **Spec-Driven Implementation**: CodeAgent uses specifications as blueprints
+4. **Validation Alignment**: ValidationAgent tests against specifications
+
+### 📝 Specification Hierarchy
+```
+Epic (E001) - High-level business initiative
+├── Feature (F001) - Specific product capability
+│   ├── Story (S001) - Implementation task
+│   ├── Story (S002) - Integration task
+│   └── Compliance (C001) - Regulatory requirement
+└── Feature (F002) - Additional capability
+    ├── Story (S003) - API development
+    └── Story (S004) - Testing requirements
+```
+
+### ✅ Benefits of Spec-Driven Development
+- **Consistency**: All code aligns with documented requirements
+- **Traceability**: Clear mapping from requirements to implementation
+- **Quality**: Reduces implementation errors and misalignment
+- **Compliance**: Ensures regulatory requirements are addressed
+- **Maintainability**: Makes code changes more predictable and safe
+
+## 📚 Comprehensive Prompts Library
+
+### 📁 Library Structure
+```
+prompts/
+├── banking/                     # Banking domain prompts
+│   ├── epics.md                # Epic-level prompts
+│   ├── features.md             # Feature-level prompts  
+│   ├── stories.md              # Story-level prompts
+│   ├── compliance.md           # Compliance-focused prompts
+│   ├── code_implementation.md  # Code generation prompts
+│   └── workflows.md            # Complete workflow prompts
+├── system/                      # System management prompts
+│   ├── status.md               # Status and monitoring prompts
+│   ├── validation.md           # Validation and testing prompts
+│   └── orchestration.md        # LangGraph orchestration prompts
+└── examples/                    # Complete workflow examples
+    ├── credit_cards.md         # Credit card system examples
+    └── fraud_detection.md      # Fraud detection examples
+```
+
+### 🎯 Prompt Categories
+
+#### **Epic Prompts** (High-Level Initiatives)
+```
+"Create an epic for digital loan origination platform"
+"Add an epic for mobile banking app modernization"
+```
+
+#### **Feature Prompts** (Product Capabilities)
+```
+"Add a feature for real-time fraud detection under epic E001"
+"Create a feature for automated credit scoring with AI"
+```
+
+#### **Story Prompts** (Implementation Tasks)
+```
+"Create a story for KYC document verification API under feature F005"
+"Add a story for payment gateway integration under feature F003"
+```
+
+#### **Code Implementation Prompts**
+```
+"Implement REST API for loan application submission with validation"
+"Generate fraud detection algorithm with real-time monitoring"
+```
+
+#### **Complete Workflow Prompts**
+```
+"Create specifications and implement digital banking platform with mobile app"
+"Orchestrate complete development of fraud detection system with compliance validation"
+```
+
+### ⚡ Quick Prompt Patterns
+
+#### Basic Pattern Structure
+```
+Action + Subject + Context + Constraints
+
+Examples:
+"Create a feature for fraud detection under epic E001"
+"Add a compliance story for PCI DSS under feature F002"
+"Build a loan origination system with AI risk assessment"
+```
+
+#### Banking-Specific Patterns
+```
+Product Type + Process + Technology + Compliance
+
+Examples:
+"Create a credit card application system with fraud detection and PCI compliance"
+"Build a loan underwriting platform with AI scoring and regulatory reporting"
+"Add a payment processing feature with real-time monitoring and AML validation"
+```
+
+## 💻 Generated Code Structure
+
+### 📁 Code Organization
+```
+code/
+├── MyBank/                     # Banking domain implementations
+│   ├── loan_origination/       # Loan processing systems
+│   ├── payment_gateway/        # Payment processing
+│   ├── fraud_detection/        # Security systems
+│   └── compliance/             # Regulatory modules
+├── samples/                    # Code samples and examples
+├── tests/                      # Generated test files
+│   ├── unit/                   # Unit tests
+│   ├── integration/            # Integration tests
+│   └── compliance/             # Compliance validation tests
+└── docs/                       # Code documentation
+    ├── api/                    # API documentation
+    └── architecture/           # System design docs
+```
+
+### 🛠️ Code Generation Features
+
+#### **RESTful API Development**
+- Automatic endpoint generation
+- Request/response validation
+- Error handling and logging
+- Rate limiting and throttling
+
+#### **Database Integration**
+- Schema generation and migration
+- ORM model creation
+- Connection pooling and optimization
+- Data validation and constraints
+
+#### **Security Implementation**
+- Authentication and authorization
+- Encryption and tokenization
+- Audit logging and monitoring
+- Compliance validation hooks
+
+#### **Testing Automation**
+- Comprehensive test suite generation
+- Mock data and fixtures
+- Performance and load testing
+- Security and compliance testing
+
+## 🔧 Configuration & Customization
+
+### Environment Configuration
+```python
+# config.py
+BANKING_DOMAINS = {
+    'loans': {
+        'compliance': ['KYC', 'AML', 'Basel III'],
+        'risk_factors': ['credit_score', 'income', 'debt_ratio'],
+        'workflow': ['application', 'underwriting', 'approval', 'disbursement']
+    },
+    'payments': {
+        'compliance': ['PCI-DSS', 'AML', 'OFAC'],
+        'security': ['encryption', 'tokenization', 'fraud_detection'],
+        'workflow': ['initiation', 'validation', 'processing', 'settlement']
+    }
+}
+
+AGENT_CONFIG = {
+    'spec_agent': {
+        'temperature': 0.1,  # Low for consistent specs
+        'max_tokens': 2000,
+        'banking_context': True
+    },
+    'code_agent': {
+        'temperature': 0.2,  # Slightly higher for creative solutions
+        'max_tokens': 3000,
+        'include_tests': True,
+        'security_focus': True
+    }
 }
 ```
 
-### Agent-Specific Settings
+### Custom Banking Domains
 ```python
-# Banking domain detection configuration
-BANKING_KEYWORDS = {
-    "loans": ["loan", "lending", "mortgage", "credit", "financing"],
-    "credit_cards": ["credit card", "card", "plastic", "rewards"],
-    "payments": ["payment", "transfer", "wire", "ach", "settlement"],
-    "investments": ["investment", "portfolio", "trading", "stocks"],
-    "accounts": ["account", "savings", "checking", "deposit"],
-    "digital_banking": ["mobile app", "online banking", "digital", "api"]
+# Add custom banking product
+system.add_banking_domain(
+    name="crypto_trading",
+    compliance=["AML", "KYC", "SEC"],
+    workflows=["onboarding", "trading", "settlement"],
+    risk_factors=["volatility", "liquidity", "custody"]
+)
+```
+
+### Agent Customization
+```python
+# Customize agent behavior
+system.configure_agent(
+    agent_type="code_agent",
+    specialization="blockchain",
+    frameworks=["web3.py", "ethereum"],
+    security_level="maximum"
+)
+```
+
+## 📊 Advanced Features
+
+### 🔍 System Monitoring & Analytics
+
+#### Real-time Status Monitoring
+```python
+# Check system status
+status = system.get_status()
+print(f"Active agents: {status['active_agents']}")
+print(f"Specs created: {status['specs_count']}")
+print(f"Code generated: {status['code_lines']}")
+```
+
+#### Performance Analytics
+```python
+# Workflow performance metrics
+metrics = system.get_performance_metrics()
+print(f"Average response time: {metrics['avg_response_time']}")
+print(f"Success rate: {metrics['success_rate']}")
+print(f"Most used domains: {metrics['top_domains']}")
+```
+
+### 🧪 Testing & Validation
+
+#### Comprehensive Test Generation
+```python
+# Generate complete test suites
+test_suite = system.generate_tests(
+    scope="banking_platform",
+    types=["unit", "integration", "compliance"],
+    coverage_target=95
+)
+```
+
+#### Compliance Validation
+```python
+# Validate compliance across all generated code
+compliance_report = system.validate_compliance(
+    standards=["PCI-DSS", "SOX", "GDPR"],
+    scope="all_generated_code"
+)
+```
+
+### 🔄 Workflow Orchestration
+
+#### Custom Workflow Creation
+```python
+# Define custom banking workflow
+workflow = system.create_workflow(
+    name="loan_origination_complete",
+    steps=[
+        "create_epic",
+        "define_features", 
+        "implement_api",
+        "generate_tests",
+        "validate_compliance"
+    ],
+    parallel_execution=True
+)
+```
+
+#### State Management
+```python
+# Advanced state management
+state = system.create_state_manager(
+    persistence=True,
+    backup_interval=300,  # 5 minutes
+    state_validation=True
+)
+```
+
+## 🔗 Integration & API
+
+### RESTful API Interface
+```python
+# API server for external integration
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+system = PromptToProductSystem()
+
+@app.route('/process', methods=['POST'])
+def process_prompt():
+    prompt = request.json['prompt']
+    result = system.process(prompt)
+    return jsonify(result)
+
+@app.route('/status', methods=['GET'])
+def get_status():
+    return jsonify(system.get_status())
+```
+
+### Webhook Integration
+```python
+# GitHub webhook integration
+@app.route('/webhook/github', methods=['POST'])
+def github_webhook():
+    event = request.json
+    if event['action'] == 'opened':
+        # Auto-generate specs from PR description
+        specs = system.generate_specs_from_pr(event['pull_request'])
+        return jsonify(specs)
+```
+
+### CLI Tool
+```bash
+# Command-line interface
+python prompttoproduct.py --prompt "Create loan API" --format json
+python prompttoproduct.py --status --verbose
+python prompttoproduct.py --validate --scope all
+```
+
+## 🎯 Example Workflows
+
+### Complete Banking Platform Development
+```python
+# End-to-end banking platform creation
+prompts = [
+    "Create an epic for digital banking platform",
+    "Add a feature for loan origination under epic E001",
+    "Add a feature for payment processing under epic E001", 
+    "Create a story for KYC verification under feature F001",
+    "Implement loan application API with fraud detection",
+    "Generate comprehensive test suite for all components",
+    "Validate PCI compliance across all payment components"
+]
+
+for prompt in prompts:
+    result = system.process(prompt)
+    print(f"✅ {prompt} -> {result['status']}")
+```
+
+### Fraud Detection System
+```python
+# Comprehensive fraud detection implementation
+workflow_state = {
+    "prompt": "Build comprehensive fraud detection system",
+    "requirements": {
+        "real_time": True,
+        "ml_models": ["isolation_forest", "neural_network"],
+        "compliance": ["PCI-DSS", "AML"],
+        "integration": ["payment_gateway", "transaction_monitoring"]
+    }
 }
 
-# Compliance keywords
-COMPLIANCE_KEYWORDS = ["kyc", "aml", "pci-dss", "sox", "gdpr", "basel"]
-## 🎯 Advanced Features
-
-### Memory Context Management
-The unified system maintains conversation context across sessions:
-
-```bash
-# View recent conversation context
-python prompttoproduct.py --memory
-
-# Clear memory context
-python prompttoproduct.py --clear-memory
-
-# Set memory context window
-python prompttoproduct.py --memory-window 20
+result = system.execute_workflow(workflow_state)
 ```
 
-### GitHub Integration via MCP Server
-Seamless integration with GitHub for project management with intelligent file naming:
+## 📋 Dependencies
 
-- **Meaningful File Names**: Generates contextual filenames based on spec content and banking domain
-  - `E001-loans-fraud-detection-system.md` (Epic)
-  - `F001-payments-p2p-transfer-api.md` (Feature)  
-  - `S001-accounts-kyc-validation-story.md` (Story)
-- **Automatic File Sync**: Creates specification files directly in GitHub repository
-- **Issue Creation**: Automatically creates GitHub issues from specifications with banking context
-- **Project Boards**: Syncs with GitHub Projects v2 for tracking
-- **Repository Management**: Integrates with existing GitHub repositories
-- **Branch Management**: Supports feature branch workflows
-- **Banking Domain Labels**: Auto-applies banking-specific labels (loans, payments, compliance, etc.)
+### Core Requirements
+```txt
+# Core framework
+langgraph>=0.0.40
+langchain>=0.1.0
+langchain-openai>=0.0.8
 
-#### Configuration
-```bash
-# Enable GitHub integration in .env
-AUTO_SYNC_GITHUB=true
-GITHUB_PERSONAL_ACCESS_TOKEN=your_token_here
-GITHUB_REPO_OWNER=your_username
-GITHUB_REPO_NAME=your_repo_name
+# Data processing
+pandas>=1.5.0
+numpy>=1.24.0
+sqlalchemy>=2.0.0
+
+# API development
+flask>=2.3.0
+requests>=2.31.0
+pydantic>=2.0.0
+
+# Banking domain
+python-banking>=1.0.0
+compliance-checker>=0.5.0
+fraud-detection>=0.3.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+unittest-mock>=1.0.0
+
+# Development
+black>=23.7.0
+flake8>=6.0.0
+mypy>=1.5.0
 ```
 
-### Workflow Customization
-```bash
-# Skip validation step
-python prompttoproduct.py "Create API" --skip-validation
+### Optional Enhancements
+```txt
+# GitHub integration
+github-mcp-server>=0.2.0
 
-# Force code generation
-python prompttoproduct.py "Build payment system" --force-code
+# Advanced ML
+scikit-learn>=1.3.0
+tensorflow>=2.13.0
 
-# Custom output directory
-python prompttoproduct.py "Create dashboard" --output-dir ./custom/
+# Monitoring
+prometheus-client>=0.17.0
+grafana-api>=1.0.0
 
-# Set recursion limit
-python prompttoproduct.py "Complex system" --recursion-limit 100
+# Documentation
+sphinx>=7.1.0
+mkdocs>=1.5.0
 ```
 
-### Banking Compliance Features
-- **Automated Compliance Checking**: Built-in validation for banking regulations
-- **Risk Assessment Integration**: ML-powered risk scoring
-- **Audit Trail Generation**: Complete audit logs for regulatory compliance
-- **Security Best Practices**: Implements banking-grade security patterns
-```bash
-# 1. Generate specifications
-python prompttoproduct.py "Create mobile banking authentication system"
-
-# 2. Validate specifications
-python prompttoproduct.py --validate-all
-
-## 🚀 System Highlights
-
-### Recent Improvements (v2.1.0)
-- **✅ Unified Architecture**: Merged orchestration intelligence directly into main system
-- **✅ Fixed Recursion Limits**: Eliminated infinite retry loops with smart circuit breakers
-- **✅ Enhanced Error Handling**: Robust error recovery and workflow management
-- **✅ Simplified Dependencies**: Reduced agent complexity and import overhead
-- **✅ GitHub MCP Integration**: Seamless project management via GitHub MCP server
-- **✅ Memory Persistence**: Conversation context maintained across sessions
-
-### Performance Improvements
-- **Reduced Latency**: Direct method calls vs. inter-agent communication
-- **Better Resource Usage**: Single process vs. multiple agent processes
-- **Simplified Debugging**: Unified error tracking and logging
-- **Enhanced Reliability**: Circuit breaker protection against workflow failures
-
-### Architecture Benefits
-- **Single Entry Point**: `prompttoproduct.py` handles all operations
-- **Integrated Intelligence**: Built-in classification and routing
-- **Stateful Workflows**: LangGraph state management with conditional routing
-- **Banking Domain Expertise**: Built-in understanding of financial services
-
-## 🤝 Contributing
+## 🛠️ Development & Contributing
 
 ### Development Setup
-```bash
-# Clone the repository
-git clone https://github.com/vrushalisarfare/PromptToProduct.git
-cd PromptToProduct
+```powershell
+# Clone repository
+git clone <repository-url>
+cd PromptToProduct-1
 
-# Create development environment
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+.\venv\Scripts\Activate.ps1
 
 # Install development dependencies
 pip install -r requirements.txt
-pip install pytest black flake8  # Development tools
+pip install -r requirements-dev.txt
 
-# Run tests
-python -m pytest tests/
-
-# Run the system
-python prompttoproduct.py --status
+# Pre-commit hooks
+pre-commit install
 ```
 
-### Code Style
-- Follow PEP 8 Python style guidelines
-- Use type hints for better code documentation
-- Add docstrings for all public methods
-- Write unit tests for new functionality
+### Code Quality Standards
+```powershell
+# Code formatting
+black prompttoproduct.py src/
 
-### Submitting Changes
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+# Linting
+flake8 prompttoproduct.py src/
 
-## 🤝 Integration
+# Type checking
+mypy prompttoproduct.py src/
 
-## 🔍 Troubleshooting
-
-### Common Issues
-
-**Q: "LangGraph not available" error**
-```bash
-# Install LangGraph dependencies
-pip install langgraph langchain langchain-core
-
-# Verify installation
-python -c "import langgraph; print('LangGraph installed successfully')"
+# Testing
+pytest tests/ --cov=src --cov-report=html
 ```
 
-**Q: Recursion limit errors**
-```bash
-# The system now handles this automatically, but you can adjust if needed
-python prompttoproduct.py "complex prompt" --recursion-limit 100
+### Testing Strategy
+```python
+# Unit tests
+pytest tests/unit/
+
+# Integration tests
+pytest tests/integration/
+
+# Banking domain tests
+pytest tests/banking/ --compliance
+
+# End-to-end workflow tests
+pytest tests/e2e/ --slow
 ```
 
-**Q: GitHub integration not working**
-```bash
-# Set GitHub token in .env file
-echo "GITHUB_TOKEN=your_token_here" >> .env
+## 🔒 Security & Compliance
 
-# Test GitHub connectivity
-python prompttoproduct.py --status
+### Security Features
+- **Encryption**: All sensitive data encrypted at rest and in transit
+- **Authentication**: Multi-factor authentication for system access
+- **Authorization**: Role-based access control for different agents
+- **Audit Logging**: Comprehensive logging of all system activities
+- **Secure Communication**: TLS encryption for all API communications
+
+### Compliance Standards
+- **PCI-DSS**: Payment card industry compliance for payment processing
+- **SOX**: Sarbanes-Oxley compliance for financial reporting
+- **GDPR**: Data privacy compliance for customer data handling
+- **AML/KYC**: Anti-money laundering and know-your-customer requirements
+- **Basel III**: Banking regulatory compliance framework
+
+### Security Configuration
+```python
+# Security settings
+SECURITY_CONFIG = {
+    'encryption': {
+        'algorithm': 'AES-256',
+        'key_rotation': 'weekly',
+        'secure_storage': True
+    },
+    'authentication': {
+        'mfa_required': True,
+        'session_timeout': 1800,  # 30 minutes
+        'password_policy': 'strong'
+    },
+    'audit': {
+        'log_all_actions': True,
+        'retention_period': '7_years',
+        'real_time_monitoring': True
+    }
+}
 ```
 
-**Q: Memory context issues**
-```bash
-# Clear memory if corrupted
-rm orchestrator_memory.json
-
-# Restart with clean memory
-python prompttoproduct.py --status
-```
-
-**Q: Validation scores always 0.0**
-```bash
-# This is expected - the system now proceeds regardless of validation scores
-# The workflow will complete successfully
-```
+## 📈 Performance & Scalability
 
 ### Performance Optimization
-- **Large Prompts**: Break down complex requests into smaller components
-- **Memory Usage**: Adjust context window size if experiencing memory issues
-- **GitHub Rate Limits**: Add delays between GitHub operations if hitting rate limits
+- **Caching**: Intelligent caching of specifications and generated code
+- **Parallel Processing**: Multi-agent parallel execution where possible
+- **Database Optimization**: Efficient database queries and indexing
+- **Memory Management**: Optimized memory usage for large workflows
 
-### Getting Help
-- Check the status with `python prompttoproduct.py --status`
-- Use verbose mode for detailed logging: `--verbose`
-- Review generated files in `specs/` directory
-- Check workflow logs for specific error messages
+### Scalability Features
+- **Horizontal Scaling**: Support for multiple agent instances
+- **Load Balancing**: Distribution of requests across available agents
+- **Queue Management**: Asynchronous processing for high-volume requests
+- **Resource Monitoring**: Real-time monitoring of system resources
 
-## 📄 License
+### Performance Metrics
+```python
+# Performance monitoring
+metrics = {
+    'response_times': {
+        'spec_generation': '2-5 seconds',
+        'code_generation': '5-15 seconds', 
+        'validation': '3-8 seconds'
+    },
+    'throughput': {
+        'specs_per_hour': 120,
+        'code_files_per_hour': 80,
+        'validations_per_hour': 200
+    },
+    'resource_usage': {
+        'memory': '< 2GB',
+        'cpu': '< 70%',
+        'storage': 'minimal'
+    }
+}
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 🎓 Learning & Best Practices
 
-## 🙏 Acknowledgments
+### Best Practices for Prompts
+1. **Be Specific**: Include domain context and compliance requirements
+2. **Use Hierarchy**: Build epic → feature → story progressions
+3. **Include Constraints**: Specify security, performance, and compliance needs
+4. **Provide Context**: Reference existing specifications when building on them
 
-- **LangGraph**: For providing the stateful workflow framework
-- **LangChain**: For the underlying agent architecture components
-- **GitHub MCP Server**: For seamless repository integration
-- **VS Code Extensions**: For development environment support
+### Banking Domain Guidelines
+1. **Security First**: Always consider security implications
+2. **Compliance Aware**: Include relevant regulatory requirements
+3. **Risk Assessment**: Consider risk factors in all implementations
+4. **Integration Focus**: Design for system integration and interoperability
+
+### Code Quality Standards
+1. **Documentation**: All generated code includes comprehensive documentation
+2. **Testing**: Comprehensive test coverage for all generated code
+3. **Security**: Security-first approach with built-in protections
+4. **Maintainability**: Clean, readable, and maintainable code structure
+
+## 🚨 Troubleshooting
+
+### Common Issues
+1. **Agent Routing Problems**: Check prompt clarity and domain context
+2. **Specification Gaps**: Ensure all parent specifications exist
+3. **Code Generation Errors**: Verify specification completeness
+4. **Validation Failures**: Check compliance requirements alignment
+
+### Debug Mode
+```python
+# Enable debug logging
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Debug specific agent
+system.enable_debug(agent='code_agent', verbose=True)
+
+# Debug workflow state
+system.debug_workflow_state(show_transitions=True)
+```
+
+### Support & Resources
+- **Documentation**: Comprehensive guides in `docs/` directory
+- **Examples**: Working examples in `examples/` directory  
+- **Community**: GitHub discussions and issues
+- **Support**: Enterprise support available for production deployments
 
 ---
 
-**PromptToProduct v2.1.0** - Unified LangGraph Orchestration System  
-Built with ❤️ for intelligent software development automation.
-
-### Common Issues
-
-**Import Errors**
-```bash
-# Ensure Python path is correct
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-python prompttoproduct.py --status
-```
-
-**Agent Initialization Failures**
-```bash
-# Check individual agent status
-python src/agents/orchestrator.py --status
-python src/agents/spec_agent.py --status
-```
-
-**GitHub Sync Issues**
-```bash
-# Verify GitHub token
-echo $GITHUB_TOKEN
-
-# Test GitHub connectivity
-python prompttoproduct.py --agent validation-agent "test github connection"
-```
-
-**Validation Failures**
-```bash
-# Run comprehensive validation
-python prompttoproduct.py --validate-all --verbose
-
-# Check specific specs
-python prompttoproduct.py --agent validation-agent "validate specific file" --file specs/stories/S001-Setup-MCP-Server.md
-```
-
-### Debug Mode
-```bash
-# Enable verbose logging
-python prompttoproduct.py "your prompt" --verbose
-
-# Get detailed agent status
-python prompttoproduct.py --status --json
-```
-
-## 📚 Documentation
-
-- **System Architecture**: See `README_Manifest.md` for Copilot Agents integration
-- **Agent APIs**: Each agent includes comprehensive docstrings and CLI help
-- **Banking Domain**: Built-in banking intelligence and compliance frameworks
-- **Code Examples**: Generated code follows banking industry best practices
-
-## 🚀 Future Enhancements
-
-### Planned Features
-- **Multi-language Code Generation**: Support for Java, JavaScript, Go
-- **Advanced ML Integration**: Enhanced fraud detection models
-- **Compliance Automation**: Automated regulatory report generation
-- **Real-time Collaboration**: Multi-user specification editing
-- **Cloud Integration**: AWS/Azure banking service integration
-
-### Extensibility
-- **Custom Agents**: Plugin architecture for specialized agents
-- **Domain Extensions**: Support for other financial domains (insurance, trading)
-- **Integration Hooks**: Webhook support for external system integration
-- **Custom Templates**: User-defined specification and code templates
-
 ## 📄 License
 
-This project is part of the PromptToProduct system for banking software development automation.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+We welcome contributions! Please see CONTRIBUTING.md for guidelines on:
+- Code style and standards
+- Testing requirements
+- Documentation standards
+- Banking domain expertise
+- Security considerations
+
+## 📞 Support
+
+- **Issues**: GitHub Issues for bug reports and feature requests
+- **Discussions**: GitHub Discussions for questions and community support
+- **Enterprise**: Contact for enterprise support and consulting
 
 ---
 
-**PromptToProduct** - Transforming natural language into production-ready banking software through intelligent agent orchestration.
+**Made with ❤️ for the Banking Industry | Powered by LangGraph & Advanced AI**

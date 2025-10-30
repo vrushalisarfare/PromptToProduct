@@ -1,15 +1,18 @@
 [
   {
-    "timestamp": "2025-10-30T06:35:49.946355",
-    "prompt": "Create an epic for mobile banking security features with biometric authentication",
+    "timestamp": "2025-10-30T09:02:25.555682",
+    "prompt": "Create specifications and implement digital loan origination platform with AI underwriting",
     "intent": "create_spec",
-    "target_agent": "spec_agent",
-    "confidence": 0.5,
+    "target_agent": "code_agent",
+    "confidence": 0.6,
     "banking_context": {
-      "is_banking": false,
-      "products": [],
+      "is_banking": true,
+      "products": [
+        "loans",
+        "digital_banking"
+      ],
       "compliance": [],
-      "domain_confidence": 0.0
+      "domain_confidence": 0.6
     }
   }
 ]
