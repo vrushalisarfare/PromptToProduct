@@ -8,6 +8,7 @@
 specs/epics/
 specs/features/
 specs/stories/
+specs/featurefiles/
 
 # Generated code directory
 code/
