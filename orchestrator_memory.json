@@ -1,14 +1,15 @@
 [
   {
-    "timestamp": "2025-10-30T05:48:12.481536",
-    "prompt": "Create a simple user registration feature",
-    "intent": "create_feature",
-    "target_agent": "spec-agent",
+    "timestamp": "2025-10-30T06:03:07.256709",
+    "prompt": "Create a user dashboard feature",
+    "intent": "create_spec",
+    "target_agent": "spec_agent",
+    "confidence": 0.5,
     "banking_context": {
       "is_banking": false,
-      "product_types": [],
-      "compliance_areas": [],
-      "primary_product": null
+      "products": [],
+      "compliance": [],
+      "domain_confidence": 0.0
     }
   }
 ]
