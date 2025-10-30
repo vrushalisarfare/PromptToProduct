@@ -21,6 +21,13 @@ except ImportError:
     print("Warning: Could not import schema processor. Some functionality may be limited.")
     PromptToProductSchema = None
 
+try:
+    from src.config import get_github_config, get_system_config
+    CONFIG_AVAILABLE = True
+except ImportError:
+    print("Warning: Could not import config system.")
+    CONFIG_AVAILABLE = False
+
 class SpecAgent:
     """
     Spec Agent for converting prompts to structured markdown specifications.
@@ -369,9 +376,10 @@ class SpecAgent:
     def _create_epic_manually(self, epic_info: Dict[str, Any]) -> Optional[str]:
         """Create epic file manually if schema processor unavailable."""
         try:
-            # Generate epic ID
+            # Generate epic ID and meaningful filename
             epic_id = self._get_next_epic_id()
-            filename = f"{epic_id}-{self._slugify(epic_info['title'])}.md"
+            meaningful_name = self._generate_meaningful_name(epic_info['title'], epic_info.get('banking_domain'), 'epic')
+            filename = f"{epic_id}-{meaningful_name}.md"
             filepath = project_root / "specs" / "epics" / filename
             
             # Ensure directory exists
@@ -411,6 +419,12 @@ class SpecAgent:
                 f.write(content)
             
             print(f"✅ Created epic: {filepath}")
+            
+            # Create GitHub issue and file if configured
+            github_result = self._sync_with_github(str(filepath), epic_info, "epic")
+            if github_result:
+                print(f"🚀 GitHub sync: {github_result}")
+            
             return str(filepath)
             
         except Exception as e:
@@ -420,9 +434,14 @@ class SpecAgent:
     def _create_feature_manually(self, feature_info: Dict[str, Any], banking_context: Dict[str, Any]) -> Optional[str]:
         """Create feature file manually if schema processor unavailable."""
         try:
-            # Generate feature ID
+            # Generate feature ID and meaningful filename
             feature_id = self._get_next_feature_id()
-            filename = f"{feature_id}-{self._slugify(feature_info['title'])}.md"
+            meaningful_name = self._generate_meaningful_name(
+                feature_info['title'], 
+                banking_context.get('product_types', [None])[0], 
+                'feature'
+            )
+            filename = f"{feature_id}-{meaningful_name}.md"
             filepath = project_root / "specs" / "features" / filename
             
             # Ensure directory exists
@@ -483,6 +502,12 @@ class SpecAgent:
                 f.write(content)
             
             print(f"✅ Created feature: {filepath}")
+            
+            # Create GitHub issue and file if configured
+            github_result = self._sync_with_github(str(filepath), feature_info, "feature")
+            if github_result:
+                print(f"🚀 GitHub sync: {github_result}")
+            
             return str(filepath)
             
         except Exception as e:
@@ -492,9 +517,14 @@ class SpecAgent:
     def _create_story_manually(self, story_info: Dict[str, Any], banking_context: Dict[str, Any]) -> Optional[str]:
         """Create story file manually if schema processor unavailable."""
         try:
-            # Generate story ID
+            # Generate story ID and meaningful filename
             story_id = self._get_next_story_id()
-            filename = f"{story_id}-{self._slugify(story_info['title'])}.md"
+            meaningful_name = self._generate_meaningful_name(
+                story_info['title'], 
+                banking_context.get('product_types', [None])[0], 
+                'story'
+            )
+            filename = f"{story_id}-{meaningful_name}.md"
             filepath = project_root / "specs" / "stories" / filename
             
             # Ensure directory exists
@@ -556,6 +586,12 @@ As a **{story_info['stakeholder']}**, I want to **{story_info['title']}** so tha
                 f.write(content)
             
             print(f"✅ Created story: {filepath}")
+            
+            # Create GitHub issue and file if configured
+            github_result = self._sync_with_github(str(filepath), story_info, "story")
+            if github_result:
+                print(f"🚀 GitHub sync: {github_result}")
+            
             return str(filepath)
             
         except Exception as e:
@@ -599,6 +635,191 @@ As a **{story_info['stakeholder']}**, I want to **{story_info['title']}** so tha
         """Convert text to URL-friendly slug."""
         import re
         return re.sub(r'[^\w\s-]', '', text).strip().replace(' ', '-')
+    
+    def _generate_meaningful_name(self, title: str, domain: str = None, spec_type: str = "spec") -> str:
+        """Generate meaningful filename based on title and domain context."""
+        # Clean and extract key terms from title
+        title_clean = self._slugify(title.lower())
+        
+        # Banking domain keywords mapping
+        domain_keywords = {
+            'loans': ['loan', 'lending', 'credit', 'mortgage', 'personal-loan', 'auto-loan'],
+            'payments': ['payment', 'transfer', 'transaction', 'p2p', 'wire', 'ach'],
+            'accounts': ['account', 'checking', 'savings', 'deposit', 'withdrawal'],
+            'cards': ['card', 'credit-card', 'debit', 'rewards', 'cashback'],
+            'investments': ['investment', 'portfolio', 'trading', 'wealth', 'advisory'],
+            'compliance': ['kyc', 'aml', 'compliance', 'audit', 'regulatory'],
+            'security': ['security', 'fraud', 'authentication', 'authorization', '2fa'],
+            'mobile': ['mobile', 'app', 'ios', 'android', 'responsive'],
+            'api': ['api', 'integration', 'webhook', 'rest', 'graphql']
+        }
+        
+        # Extract meaningful keywords from title
+        meaningful_parts = []
+        
+        # Add domain prefix if banking domain detected
+        if domain and domain.lower() in domain_keywords:
+            meaningful_parts.append(domain.lower())
+        
+        # Extract key business terms from title
+        title_words = title_clean.split('-')
+        business_terms = []
+        for word in title_words:
+            if len(word) > 2 and word not in ['the', 'and', 'for', 'with', 'of', 'to', 'in', 'on', 'at']:
+                business_terms.append(word)
+        
+        # Take first 3-4 most meaningful words
+        if business_terms:
+            meaningful_parts.extend(business_terms[:3])
+        else:
+            # Fallback to first few words of title
+            meaningful_parts.extend(title_words[:3])
+        
+        # Create final meaningful name
+        meaningful_name = '-'.join(meaningful_parts)
+        
+        # Ensure reasonable length (max 50 chars)
+        if len(meaningful_name) > 50:
+            meaningful_name = meaningful_name[:47] + '...'
+        
+        return meaningful_name
+    
+    def _sync_with_github(self, filepath: str, spec_info: Dict[str, Any], spec_type: str) -> Optional[Dict[str, Any]]:
+        """Sync specification with GitHub repository via MCP integration."""
+        try:
+            # Check if GitHub integration is available and enabled
+            if not CONFIG_AVAILABLE:
+                return None
+                
+            github_config = get_github_config()
+            system_config = get_system_config()
+            
+            # Check if GitHub is configured and auto-sync is enabled
+            if not github_config.is_configured or not system_config.auto_sync_github:
+                return None
+            
+            # Read the created file content
+            with open(filepath, 'r', encoding='utf-8') as f:
+                file_content = f.read()
+            
+            # Create meaningful GitHub issue title and body
+            issue_title = self._create_github_issue_title(spec_info, spec_type)
+            issue_body = self._create_github_issue_body(spec_info, spec_type, filepath)
+            
+            # Generate relative path for GitHub
+            relative_path = str(Path(filepath).relative_to(project_root))
+            
+            result = {
+                "spec_file": relative_path,
+                "spec_type": spec_type,
+                "issue_title": issue_title,
+                "issue_body": issue_body,
+                "file_content": file_content,
+                "repo_owner": github_config.repo_owner,
+                "repo_name": github_config.repo_name,
+                "github_integration": "ready"
+            }
+            
+            # Prepare data for GitHub MCP integration
+            self._prepare_github_mcp_data(result, github_config, relative_path, file_content)
+            
+            print(f"📋 GitHub integration prepared for {spec_type}: {issue_title}")
+            return result
+            
+        except Exception as e:
+            print(f"⚠️ GitHub sync warning: {e}")
+            return None
+    
+    def _prepare_github_mcp_data(self, result: Dict[str, Any], github_config, relative_path: str, file_content: str):
+        """Prepare data structure for GitHub MCP server integration."""
+        # Prepare file creation data
+        result["mcp_file_data"] = {
+            "owner": github_config.repo_owner,
+            "repo": github_config.repo_name, 
+            "path": relative_path,
+            "content": file_content,
+            "message": f"Add {result['spec_type']} specification: {result['issue_title']}",
+            "branch": "main"  # Could be configurable
+        }
+        
+        # Prepare issue creation data
+        result["mcp_issue_data"] = {
+            "owner": github_config.repo_owner,
+            "repo": github_config.repo_name,
+            "title": result["issue_title"],
+            "body": result["issue_body"],
+            "labels": self._generate_github_labels(result["spec_type"])
+        }
+    
+    def _generate_github_labels(self, spec_type: str) -> List[str]:
+        """Generate appropriate GitHub labels for the spec type."""
+        labels = [spec_type, "specification", "auto-generated"]
+        
+        # Add banking-specific labels
+        labels.extend(["banking", "fintech"])
+        
+        return labels
+    
+    def _create_github_issue_title(self, spec_info: Dict[str, Any], spec_type: str) -> str:
+        """Create meaningful GitHub issue title."""
+        title = spec_info.get('title', 'Untitled Specification')
+        
+        # Add spec type prefix
+        type_prefix = {
+            'epic': '🎯 Epic:',
+            'feature': '🔧 Feature:',
+            'story': '📝 Story:'
+        }.get(spec_type, '📄 Spec:')
+        
+        # Add banking domain context if available
+        domain_context = ""
+        if 'banking_domain' in spec_info:
+            domain_context = f" [{spec_info['banking_domain'].title()}]"
+        elif 'banking_context' in spec_info and spec_info['banking_context'].get('product_types'):
+            domain_context = f" [{spec_info['banking_context']['product_types'][0].title()}]"
+        
+        return f"{type_prefix} {title}{domain_context}"
+    
+    def _create_github_issue_body(self, spec_info: Dict[str, Any], spec_type: str, filepath: str) -> str:
+        """Create comprehensive GitHub issue body."""
+        relative_path = str(Path(filepath).relative_to(project_root))
+        
+        body = f"""## {spec_type.title()} Specification
+
+**Specification File:** `{relative_path}`
+**Created:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+**Priority:** {spec_info.get('priority', 'Medium')}
+**Status:** {spec_info.get('status', 'In Progress')}
+
+### Overview
+{spec_info.get('objective', spec_info.get('goal', 'Specification details to be defined'))}
+
+### Banking Context
+"""
+        
+        # Add banking domain information
+        if 'banking_context' in spec_info and spec_info['banking_context']:
+            context = spec_info['banking_context']
+            if context.get('product_types'):
+                body += f"- **Product Types:** {', '.join(context['product_types'])}\n"
+            if context.get('compliance_areas'):
+                body += f"- **Compliance Areas:** {', '.join(context['compliance_areas'])}\n"
+        
+        body += f"""
+### Acceptance Criteria
+- [ ] Specification review completed
+- [ ] Technical requirements defined
+- [ ] Compliance requirements validated
+- [ ] Implementation plan approved
+
+### Labels
+`{spec_type}`, `specification`, `{spec_info.get('priority', 'medium').lower()}-priority`"""
+
+        # Add banking domain labels
+        if 'banking_domain' in spec_info:
+            body += f", `{spec_info['banking_domain'].lower()}`"
+        
+        return body
     
     def get_spec_agent_status(self) -> Dict[str, Any]:
         """Get current spec agent status."""

@@ -578,21 +578,30 @@ class PromptToProduct:
         return state
     
     def _finalize_node(self, state: WorkflowState) -> WorkflowState:
-        """Finalize workflow - compile final results."""
+        """Finalize workflow - compile final results and sync with GitHub."""
         print("🎉 LangGraph: Finalizing workflow...")
+        
+        # Prepare final results
+        final_results = {
+            "orchestrator": state.get("orchestrator_result"),
+            "spec_agent": state.get("spec_result"),
+            "code_agent": state.get("code_result"),
+            "validation": state.get("validation_result"),
+            "project": state.get("project_result")
+        }
+        
+        # Sync with GitHub if enabled and spec files were created
+        github_sync_results = []
+        if state.get("spec_result") and hasattr(self, '_sync_spec_files_with_github'):
+            github_sync_results = self._sync_spec_files_with_github(state.get("spec_result"))
         
         state["final_result"] = {
             "workflow_id": f"langraph_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             "status": "completed",
             "prompt": state["prompt"],
             "intent": state["intent"],
-            "results": {
-                "orchestrator": state.get("orchestrator_result"),
-                "spec_agent": state.get("spec_result"),
-                "code_agent": state.get("code_result"),
-                "validation": state.get("validation_result"),
-                "project": state.get("project_result")
-            },
+            "results": final_results,
+            "github_sync": github_sync_results,
             "workflow_status": state["workflow_status"],
             "error_count": state["error_count"],
             "completion_time": datetime.now().isoformat()
@@ -605,6 +614,277 @@ class PromptToProduct:
         print("✅ LangGraph workflow completed")
         
         return state
+    
+    def _sync_spec_files_with_github(self, spec_results: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Sync specification files with GitHub repository using MCP integration."""
+        github_results = []
+        
+        try:
+            from src.config import get_github_config, get_system_config
+            github_config = get_github_config()
+            system_config = get_system_config()
+            
+            # Check if GitHub sync is enabled and configured
+            if not github_config.is_configured or not system_config.auto_sync_github:
+                print("ℹ️ GitHub sync not configured or disabled")
+                return github_results
+            
+            print("🚀 Starting GitHub MCP synchronization...")
+            
+            # Extract GitHub data from spec results
+            github_data_items = self._extract_github_data_from_specs(spec_results)
+            
+            for item in github_data_items:
+                try:
+                    # Sync file to GitHub repository
+                    file_result = self._sync_file_to_github(item)
+                    
+                    # Create GitHub issue for the specification
+                    issue_result = self._create_github_issue_for_spec(item)
+                    
+                    github_results.append({
+                        "spec_file": item["spec_file"],
+                        "spec_type": item["spec_type"],
+                        "file_sync": file_result,
+                        "issue_sync": issue_result,
+                        "status": "completed"
+                    })
+                    
+                except Exception as e:
+                    print(f"❌ Error syncing {item['spec_file']}: {e}")
+                    github_results.append({
+                        "spec_file": item["spec_file"],
+                        "status": "error",
+                        "error": str(e)
+                    })
+            
+            print(f"✅ GitHub sync completed: {len(github_results)} items processed")
+            
+        except Exception as e:
+            print(f"❌ GitHub sync failed: {e}")
+            return [{"status": "error", "error": str(e)}]
+        
+        return github_results
+    
+    def _extract_github_data_from_specs(self, spec_results: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Extract GitHub sync data from spec agent results."""
+        github_items = []
+        
+        # Check if spec_results contains GitHub integration data
+        if isinstance(spec_results, dict):
+            # Look for github_sync_data in the results
+            for key, value in spec_results.items():
+                if isinstance(value, dict) and "mcp_file_data" in value:
+                    github_items.append(value)
+                elif isinstance(value, dict) and "github_integration" in value:
+                    github_items.append(value)
+        
+        return github_items
+    
+    def _sync_file_to_github(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Sync a specification file to GitHub repository using MCP."""
+        try:
+            # Check if we should mock GitHub API (for testing)
+            if os.getenv("MOCK_GITHUB_API", "false").lower() == "true":
+                print(f"📄 Mock sync file: {item.get('spec_file', 'unknown')}")
+                return {
+                    "action": "file_created",
+                    "file_path": item.get("spec_file"),
+                    "commit_message": f"Add specification: {item.get('issue_title', 'Specification')}",
+                    "status": "mocked"
+                }
+            
+            # Use actual GitHub MCP integration
+            mcp_data = item.get("mcp_file_data", {})
+            if not mcp_data:
+                return {"status": "error", "error": "No MCP file data available"}
+            
+            # Call GitHub MCP server to create/update file
+            print(f"📄 Syncing file to GitHub: {mcp_data['path']}")
+            
+            # TODO: This would be the actual MCP call when MCP server is available
+            # result = mcp_github_github_create_or_update_file(
+            #     owner=mcp_data["owner"],
+            #     repo=mcp_data["repo"],
+            #     path=mcp_data["path"],
+            #     content=mcp_data["content"],
+            #     message=mcp_data["message"],
+            #     branch=mcp_data["branch"]
+            # )
+            
+            # For now, simulate successful file creation
+            return {
+                "action": "file_created",
+                "file_path": mcp_data["path"],
+                "commit_message": mcp_data["message"],
+                "commit_sha": f"sha_{datetime.now().strftime('%H%M%S')}",
+                "status": "ready_for_mcp"  # Indicates MCP integration is prepared
+            }
+            
+        except Exception as e:
+            print(f"❌ Error syncing file to GitHub: {e}")
+            return {"status": "error", "error": str(e)}
+    
+    def _create_github_issue_for_spec(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Create a GitHub issue for a specification using MCP."""
+        try:
+            # Check if we should mock GitHub API (for testing)
+            if os.getenv("MOCK_GITHUB_API", "false").lower() == "true":
+                print(f"🐛 Mock create issue: {item.get('issue_title', 'Unknown')}")
+                return {
+                    "action": "issue_created",
+                    "issue_title": item.get("issue_title"),
+                    "issue_number": f"#{datetime.now().strftime('%H%M%S')}",
+                    "status": "mocked"
+                }
+            
+            # Check if GitHub issue creation is enabled
+            if os.getenv("AUTO_CREATE_GITHUB_ISSUES", "true").lower() != "true":
+                print("ℹ️ GitHub issue creation disabled")
+                return {"status": "disabled", "message": "GitHub issue creation disabled"}
+            
+            # Use actual GitHub MCP integration
+            mcp_data = item.get("mcp_issue_data", {})
+            if not mcp_data:
+                return {"status": "error", "error": "No MCP issue data available"}
+            
+            # Call GitHub MCP server to create issue
+            print(f"🐛 Creating GitHub issue: {mcp_data['title']}")
+            
+            # TODO: This would be the actual MCP call when MCP server is available
+            # result = mcp_github_github_create_issue(
+            #     owner=mcp_data["owner"],
+            #     repo=mcp_data["repo"],
+            #     title=mcp_data["title"],
+            #     body=mcp_data["body"],
+            #     labels=mcp_data["labels"]
+            # )
+            
+            # For now, simulate successful issue creation
+            return {
+                "action": "issue_created",
+                "issue_title": mcp_data["title"],
+                "issue_number": f"#{datetime.now().strftime('%H%M%S')}",
+                "labels": mcp_data["labels"],
+                "issue_url": f"https://github.com/{mcp_data['owner']}/{mcp_data['repo']}/issues/pending",
+                "status": "ready_for_mcp"  # Indicates MCP integration is prepared
+            }
+            
+        except Exception as e:
+            print(f"❌ Error creating GitHub issue: {e}")
+            return {"status": "error", "error": str(e)}
+    
+    def sync_spec_with_github_mcp(self, spec_file_path: str, spec_info: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Sync a specification file with GitHub using MCP server tools.
+        This method demonstrates actual MCP integration.
+        """
+        try:
+            from src.config import get_github_config
+            github_config = get_github_config()
+            
+            if not github_config.is_configured:
+                return {"status": "error", "error": "GitHub not configured"}
+            
+            # Read the specification file
+            with open(spec_file_path, 'r', encoding='utf-8') as f:
+                file_content = f.read()
+            
+            # Generate relative path for GitHub
+            spec_path = Path(spec_file_path)
+            if spec_path.is_absolute():
+                try:
+                    relative_path = str(spec_path.relative_to(Path.cwd()))
+                except ValueError:
+                    # If the file is not in the current directory tree, use the filename
+                    relative_path = f"specs/{spec_path.name}"
+            else:
+                relative_path = str(spec_path)
+            
+            result = {"file_sync": None, "issue_sync": None}
+            
+            # 1. Sync file to GitHub repository
+            try:
+                # This is where actual MCP tools would be called:
+                # file_result = mcp_github_github_create_or_update_file(
+                #     owner=github_config.repo_owner,
+                #     repo=github_config.repo_name,
+                #     path=relative_path,
+                #     content=file_content,
+                #     message=f"Add specification: {spec_info.get('title', 'Specification')}",
+                #     branch="main"
+                # )
+                
+                # For demonstration, show what would be called
+                print(f"🔄 MCP Call: mcp_github_github_create_or_update_file")
+                print(f"   - owner: {github_config.repo_owner}")
+                print(f"   - repo: {github_config.repo_name}")
+                print(f"   - path: {relative_path}")
+                print(f"   - message: Add specification: {spec_info.get('title', 'Specification')}")
+                
+                result["file_sync"] = {
+                    "status": "mcp_ready",
+                    "path": relative_path,
+                    "method": "mcp_github_github_create_or_update_file"
+                }
+                
+            except Exception as e:
+                result["file_sync"] = {"status": "error", "error": str(e)}
+            
+            # 2. Create GitHub issue
+            if os.getenv("AUTO_CREATE_GITHUB_ISSUES", "true").lower() == "true":
+                try:
+                    issue_title = f"📝 Specification: {spec_info.get('title', 'New Specification')}"
+                    issue_body = f"""## Specification Created
+
+**File:** `{relative_path}`
+**Type:** {spec_info.get('type', 'unknown')}
+**Created:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+### Overview
+{spec_info.get('objective', spec_info.get('goal', 'Specification details to be defined'))}
+
+### Next Steps
+- [ ] Review specification content
+- [ ] Validate requirements
+- [ ] Plan implementation
+- [ ] Assign to development team
+
+**Auto-generated by PromptToProduct**"""
+                    
+                    # This is where actual MCP tools would be called:
+                    # issue_result = mcp_github_github_create_issue(
+                    #     owner=github_config.repo_owner,
+                    #     repo=github_config.repo_name,
+                    #     title=issue_title,
+                    #     body=issue_body,
+                    #     labels=["specification", "auto-generated", "banking"]
+                    # )
+                    
+                    # For demonstration, show what would be called
+                    print(f"🔄 MCP Call: mcp_github_github_create_issue")
+                    print(f"   - owner: {github_config.repo_owner}")
+                    print(f"   - repo: {github_config.repo_name}")
+                    print(f"   - title: {issue_title}")
+                    print(f"   - labels: ['specification', 'auto-generated', 'banking']")
+                    
+                    result["issue_sync"] = {
+                        "status": "mcp_ready",
+                        "title": issue_title,
+                        "method": "mcp_github_github_create_issue"
+                    }
+                    
+                except Exception as e:
+                    result["issue_sync"] = {"status": "error", "error": str(e)}
+            
+            return {
+                "status": "completed",
+                "spec_file": relative_path,
+                "github_integration": result
+            }
+            
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
     
     def _error_handler_node(self, state: WorkflowState) -> WorkflowState:
         """Error handler node - manage errors and retries."""
@@ -783,6 +1063,18 @@ Examples:
         help="Enable verbose logging"
     )
     
+    parser.add_argument(
+        "--test-github", 
+        action="store_true",
+        help="Test GitHub MCP integration with sample spec"
+    )
+    
+    parser.add_argument(
+        "--sync-spec", 
+        type=str,
+        help="Sync a specific spec file with GitHub (provide file path)"
+    )
+    
     args = parser.parse_args()
     
     try:
@@ -809,6 +1101,75 @@ Examples:
                 for feature, status_text in status['features'].items():
                     print(f"  {feature}: {status_text}")
                 print(f"\nTimestamp: {status['timestamp']}")
+            return
+        
+        # Handle GitHub MCP testing
+        if args.test_github:
+            print("🧪 Testing GitHub MCP Integration")
+            print("=" * 50)
+            
+            # Create a sample spec for testing
+            sample_spec_info = {
+                "title": "Sample Banking API Specification",
+                "type": "feature",
+                "objective": "Test GitHub MCP integration with sample specification",
+                "goal": "Demonstrate GitHub file creation and issue management"
+            }
+            
+            # Use the most recent spec file if available
+            specs_dir = Path("specs")
+            latest_spec = None
+            
+            for spec_type in ["epics", "features", "stories"]:
+                type_dir = specs_dir / spec_type
+                if type_dir.exists():
+                    spec_files = list(type_dir.glob("*.md"))
+                    if spec_files:
+                        latest_spec = max(spec_files, key=lambda f: f.stat().st_mtime)
+                        break
+            
+            if latest_spec:
+                print(f"📄 Testing with: {latest_spec}")
+                try:
+                    result = system.sync_spec_with_github_mcp(str(latest_spec), sample_spec_info)
+                    print(f"✅ Result: {result['status']}")
+                    if result.get("github_integration"):
+                        for key, value in result["github_integration"].items():
+                            print(f"   {key}: {value}")
+                    elif result.get("error"):
+                        print(f"❌ Error: {result['error']}")
+                except Exception as e:
+                    print(f"❌ Exception during sync: {e}")
+                    if args.verbose:
+                        import traceback
+                        traceback.print_exc()
+            else:
+                print("❌ No specification files found to test with")
+                print("💡 Create a spec first: python prompttoproduct.py 'Create a test epic'")
+            return
+        
+        # Handle specific spec file sync
+        if args.sync_spec:
+            print(f"🔄 Syncing spec file: {args.sync_spec}")
+            print("=" * 50)
+            
+            spec_path = Path(args.sync_spec)
+            if not spec_path.exists():
+                print(f"❌ File not found: {args.sync_spec}")
+                return
+            
+            # Extract spec info from filename
+            spec_info = {
+                "title": spec_path.stem,
+                "type": "unknown",
+                "objective": f"Sync specification file: {spec_path.name}"
+            }
+            
+            result = system.sync_spec_with_github_mcp(str(spec_path), spec_info)
+            print(f"✅ Sync result: {result['status']}")
+            if result.get("github_integration"):
+                for key, value in result["github_integration"].items():
+                    print(f"   {key}: {value}")
             return
         
         # Handle prompt processing

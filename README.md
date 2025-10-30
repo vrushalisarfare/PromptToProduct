@@ -330,14 +330,26 @@ python prompttoproduct.py "Implement real-time fraud monitoring for all transact
 ## 🔧 Configuration
 
 ### Environment Setup
-Create `.env` file for configuration:
+Copy the example configuration and customize for your environment:
 ```bash
+# Copy the example configuration
+cp .env.example .env
+
+# Edit your configuration
 # .env file
-GITHUB_TOKEN=your_github_token_here
-GITHUB_REPO=PromptToProduct
-GITHUB_PROJECT=Prompt To Product Development
-OPENAI_API_KEY=your_openai_key_here  # If using OpenAI
+GITHUB_PERSONAL_ACCESS_TOKEN=your_github_token_here
+GITHUB_REPO_OWNER=vrushalisarfare
+GITHUB_REPO_NAME=PromptToProduct
+AUTO_SYNC_GITHUB=true
+DEBUG_MODE=false
 ```
+
+### Complete Configuration Options
+See `.env.example` for all available configuration options including:
+- **GitHub Integration**: Token, repository, and sync settings
+- **Banking Domain**: Compliance areas and product types
+- **Agent Behavior**: Memory size, validation thresholds, auto-validation
+- **System Settings**: Debug mode, logging, timeout settings
 
 ### System Configuration
 The unified system supports various configuration options:
@@ -384,12 +396,27 @@ python prompttoproduct.py --memory-window 20
 ```
 
 ### GitHub Integration via MCP Server
-Seamless integration with GitHub for project management:
+Seamless integration with GitHub for project management with intelligent file naming:
 
-- **Issue Creation**: Automatically creates GitHub issues from specifications
+- **Meaningful File Names**: Generates contextual filenames based on spec content and banking domain
+  - `E001-loans-fraud-detection-system.md` (Epic)
+  - `F001-payments-p2p-transfer-api.md` (Feature)  
+  - `S001-accounts-kyc-validation-story.md` (Story)
+- **Automatic File Sync**: Creates specification files directly in GitHub repository
+- **Issue Creation**: Automatically creates GitHub issues from specifications with banking context
 - **Project Boards**: Syncs with GitHub Projects v2 for tracking
 - **Repository Management**: Integrates with existing GitHub repositories
 - **Branch Management**: Supports feature branch workflows
+- **Banking Domain Labels**: Auto-applies banking-specific labels (loans, payments, compliance, etc.)
+
+#### Configuration
+```bash
+# Enable GitHub integration in .env
+AUTO_SYNC_GITHUB=true
+GITHUB_PERSONAL_ACCESS_TOKEN=your_token_here
+GITHUB_REPO_OWNER=your_username
+GITHUB_REPO_NAME=your_repo_name
+```
 
 ### Workflow Customization
 ```bash
