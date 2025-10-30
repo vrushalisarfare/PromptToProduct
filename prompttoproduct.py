@@ -107,7 +107,40 @@ class PromptToProduct:
         
         # Create workflow graph
         self.workflow = self._create_workflow()
+        self._phase_counter = 0  # Track phase progression
         print("✅ LangGraph workflow initialized with GitHub MCP integration")
+    
+    def _persist_workflow_state(self, state: WorkflowState, is_complete_workflow: bool, workflow_phase: str) -> None:
+        """Persist workflow state in messages for reliable LangGraph state management."""
+        state_message = f"WORKFLOW_STATE|complete_workflow:{is_complete_workflow}|phase:{workflow_phase}|counter:{self._phase_counter}"
+        state["messages"].append(AIMessage(content=state_message))
+        # Also set in state for immediate access
+        state["is_complete_workflow"] = is_complete_workflow
+        state["workflow_phase"] = workflow_phase
+        state["phase_counter"] = self._phase_counter
+    
+    def _extract_workflow_state(self, state: WorkflowState) -> tuple[bool, str, int]:
+        """Extract workflow state from messages for reliable persistence."""
+        # Check messages for latest state
+        for message in reversed(state["messages"]):
+            if hasattr(message, 'content') and "WORKFLOW_STATE|" in message.content:
+                parts = message.content.split("|") 
+                is_complete = "complete_workflow:True" in message.content
+                phase = "" 
+                counter = 0
+                for part in parts:
+                    if part.startswith("phase:"):
+                        phase = part.split(":", 1)[1]
+                    elif part.startswith("counter:"):
+                        counter = int(part.split(":", 1)[1])
+                return is_complete, phase, counter
+        
+        # Fallback to state values and intent detection
+        intent = state.get("intent", "")
+        is_complete = state.get("is_complete_workflow", False) or intent == "complete_workflow"
+        phase = state.get("workflow_phase", "")
+        counter = state.get("phase_counter", 0)
+        return is_complete, phase, counter
 
     def _load_agents_config(self) -> Dict[str, Any]:
         """Load agent configuration from manifest."""
@@ -227,6 +260,20 @@ class PromptToProduct:
 
     def _classify_intent(self, prompt_lower: str) -> str:
         """Classify the user's intent from the prompt."""
+        
+        # Check for complete workflow patterns first
+        complete_workflow_patterns = [
+            "create specifications and implement",
+            "build complete",
+            "implement end-to-end",
+            "orchestrate complete development",
+            "create specifications and implement complete",
+            "specifications and implement"
+        ]
+        
+        if any(pattern in prompt_lower for pattern in complete_workflow_patterns):
+            return "complete_workflow"
+        
         intent_patterns = {
             "create_spec": ["create", "generate", "build", "design", "spec", "specification", "epic", "feature", "story"],
             "create_feature": ["feature", "functionality", "capability", "module", "component"],
@@ -246,6 +293,10 @@ class PromptToProduct:
 
     def _determine_target_agent(self, prompt_lower: str, intent: str, banking_context: Dict[str, Any]) -> str:
         """Determine which agent should handle the request."""
+        
+        # Complete workflow routing - start with spec agent
+        if intent == "complete_workflow":
+            return "spec_agent"  # Start with specifications, then route to others
         
         # Code-specific routing
         if intent == "implement_code" or any(keyword in prompt_lower for keyword in ["code", "implement", "develop"]):
@@ -425,6 +476,7 @@ class PromptToProduct:
             self._route_after_validation,
             {
                 "finalize": "finalize",
+                "code_agent": "code_agent",  # Added for complete workflow routing
                 "spec_agent": "spec_agent",  # Retry if validation fails
                 "error": "error_handler"
             }
@@ -465,12 +517,20 @@ class PromptToProduct:
             state["orchestrator_result"] = result
             state["workflow_status"] = "orchestration_complete"
             
+            # Set complete workflow state if needed
+            if state["intent"] == "complete_workflow":
+                self._phase_counter = 1
+                self._persist_workflow_state(state, True, "specification")
+                print("🔄 Complete Workflow: Marked for Phase 1 - Epic/Feature/Story Creation")
+                print(f"🔄 Complete Workflow: Phase Counter: {self._phase_counter}")
+            
             # Add message
             state["messages"].append(
                 AIMessage(content=f"Analyzed prompt with intent: {state['intent']}")
             )
             
             print(f"✅ Intent classified as: {state['intent']}")
+            print(f"🔍 Orchestrator final state - complete_workflow: {state.get('is_complete_workflow', False)}, phase: {state.get('workflow_phase', '')}")
             
         except Exception as e:
             print(f"❌ Orchestrator error: {e}")
@@ -486,12 +546,16 @@ class PromptToProduct:
         """Spec agent node - generate specifications."""
         try:
             print("📋 LangGraph: Generating specifications...")
+            is_complete, phase, counter = self._extract_workflow_state(state)
+            print(f"🔍 Spec agent state - complete_workflow: {is_complete}, phase: {phase}, counter: {counter}")
             
             agent_params = {
                 "prompt": state["prompt"],
                 "intent": state["intent"],
                 "banking_context": state["banking_context"],
-                "entities": state["entities"]
+                "entities": state["entities"],
+                "is_complete_workflow": state.get("is_complete_workflow", False),
+                "workflow_phase": state.get("workflow_phase", "")
             }
             
             result = self.spec_agent.process_specification_request(agent_params)
@@ -504,6 +568,7 @@ class PromptToProduct:
             )
             
             print(f"✅ Generated {result.get('spec_type', 'unknown')} specification")
+            print(f"🔍 Spec agent final state - complete_workflow: {state.get('is_complete_workflow', False)}, phase: {state.get('workflow_phase', '')}")
             
         except Exception as e:
             print(f"❌ Spec agent error: {e}")
@@ -520,10 +585,13 @@ class PromptToProduct:
         try:
             print("🔧 LangGraph: Generating code implementation...")
             
+            # Enhanced agent params with spec context for better code generation
             agent_params = {
                 "prompt": state["prompt"],
                 "banking_context": state["banking_context"],
-                "entities": state["entities"]
+                "entities": state["entities"],
+                "spec_result": state.get("spec_result", {}),  # Pass spec context
+                "is_complete_workflow": state.get("is_complete_workflow", False)
             }
             
             result = self.code_agent.generate_code_from_specs(agent_params)
@@ -554,7 +622,11 @@ class PromptToProduct:
             
             agent_params = {
                 "prompt": state["prompt"],
-                "validate_all": True
+                "validate_all": True,
+                "banking_context": state.get("banking_context", {}),
+                "entities": state.get("entities", {}),
+                "is_complete_workflow": state.get("is_complete_workflow", False),
+                "workflow_phase": state.get("workflow_phase", "")
             }
             
             result = self.validation_agent.validate_specifications(agent_params)
@@ -622,6 +694,8 @@ class PromptToProduct:
             "status": "completed",
             "prompt": state["prompt"],
             "intent": state["intent"],
+            "is_complete_workflow": state.get("is_complete_workflow", False),
+            "workflow_phase": state.get("workflow_phase", "unknown"),
             "results": final_results,
             "github_sync": github_sync_results,
             "workflow_status": state["workflow_status"],
@@ -933,6 +1007,14 @@ class PromptToProduct:
         
         intent = state.get("intent", "")
         
+        print(f"🔍 Orchestrator routing - intent: {intent}")
+        
+        # Check for complete workflow patterns
+        if intent == "complete_workflow":
+            print("🔄 Complete Workflow: Starting Phase 1 - Epic/Feature/Story Creation")
+            print("🔄 Complete Workflow: Planned Phases - 1:Spec → 2:Validation → 3:Code → 4:Validation → 5:Finalize")
+            return "spec_agent"
+        
         # Spec-driven development: Always start with specifications
         if intent in ["create_epic", "create_feature", "create_story", "spec_generation", "create_spec"]:
             return "spec_agent"
@@ -955,6 +1037,15 @@ class PromptToProduct:
         if state["workflow_status"] == "error":
             return "error"
         
+        # Check if this is a complete workflow
+        is_complete_workflow = state.get("is_complete_workflow", False)
+        spec_result = state.get("spec_result", {})
+        
+        if is_complete_workflow:
+            # For complete workflows, validate specs first, then code generation
+            print("🔄 Complete Workflow: Proceeding to Phase 2 - Specification Validation")
+            return "validation_agent"
+        
         # Check if this was part of a spec-driven code implementation flow
         if state.get("spec_driven") and state.get("original_intent") in ["code_generation", "implement_feature", "implement_code"]:
             print("🔄 Spec-driven workflow: Proceeding to code implementation...")
@@ -971,6 +1062,31 @@ class PromptToProduct:
         
         validation_result = state.get("validation_result", {})
         score = validation_result.get("overall_score", 0.0)
+        is_complete_workflow, current_phase, counter = self._extract_workflow_state(state)
+        intent = state.get("intent", "")
+        
+        print(f"🔍 Validation routing - complete_workflow: {is_complete_workflow}, phase: {current_phase}, counter: {counter}, intent: {intent}")
+        
+        # Handle complete workflow routing with phase progression
+        if is_complete_workflow or intent == "complete_workflow":
+            # Count validation runs to determine phase
+            validation_count = 0
+            for msg in state["messages"]:
+                if hasattr(msg, 'content') and "Validation completed with score:" in msg.content:
+                    validation_count += 1
+            
+            if validation_count <= 1:
+                # First validation: After spec validation, go to code generation
+                self._phase_counter = 2
+                self._persist_workflow_state(state, True, "code_generation")
+                print(f"✅ Phase 2 completed with score: {score:.2f}, proceeding to Phase 3 - Code Generation (validation #{validation_count})")
+                return "code_agent"
+            else:
+                # Second+ validation: After code validation, finalize
+                self._phase_counter = 4
+                self._persist_workflow_state(state, True, "finalization")
+                print(f"✅ Phase 4 completed with score: {score:.2f}, proceeding to Phase 5 - Finalize (validation #{validation_count})")
+                return "finalize"
         
         # Check if this was part of a spec-driven code implementation flow
         if state.get("spec_driven") and state.get("original_intent") in ["code_generation", "implement_feature", "implement_code"]:
@@ -1023,6 +1139,15 @@ class PromptToProduct:
         """Route after code agent."""
         if state["workflow_status"] == "error":
             return "error"
+        
+        # Check if this is a complete workflow
+        is_complete_workflow, current_phase, counter = self._extract_workflow_state(state)
+        intent = state.get("intent", "")
+        
+        if is_complete_workflow or intent == "complete_workflow":
+            self._phase_counter = 3
+            self._persist_workflow_state(state, True, "code_validation")
+            print(f"🔄 Complete Workflow: Proceeding to Phase 4 - Code Validation (counter: {self._phase_counter})")
         
         # Check if we need validation
         code_result = state.get("code_result", {})

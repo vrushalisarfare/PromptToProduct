@@ -1,19 +1,17 @@
 [
   {
-    "timestamp": "2025-10-30T09:51:43.898035",
-    "prompt": "Create an epic for a comprehensive digital banking platform with mobile payments and fraud detection",
-    "intent": "create_spec",
+    "timestamp": "2025-10-30T10:28:08.969391",
+    "prompt": "Create specifications and implement blockchain-based secure transaction system",
+    "intent": "complete_workflow",
     "target_agent": "spec_agent",
-    "confidence": 0.5,
+    "confidence": 0.6,
     "banking_context": {
       "is_banking": true,
       "products": [
-        "credit_cards",
-        "payments",
-        "digital_banking"
+        "payments"
       ],
       "compliance": [],
-      "domain_confidence": 0.8999999999999999
+      "domain_confidence": 0.3
     }
   }
 ]

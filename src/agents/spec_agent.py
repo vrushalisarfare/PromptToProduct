@@ -92,8 +92,13 @@ class SpecAgent:
         }
         
         try:
+            # Handle complete workflow intent specifically
+            if intent == "complete_workflow":
+                print("📋 Complete Workflow: Creating comprehensive specifications...")
+                spec_result = self._create_complete_workflow_specs(prompt, banking_context, entities)
+                result["spec_type"] = spec_result.get("detected_type", "complete_workflow")
             # Route to appropriate creation method
-            if intent in ["create_epic"] or "epic" in prompt.lower():
+            elif intent in ["create_epic"] or "epic" in prompt.lower():
                 spec_result = self.create_epic(prompt, banking_context, entities)
                 result["spec_type"] = "epic"
             elif intent in ["create_feature"] or "feature" in prompt.lower():
@@ -1049,6 +1054,22 @@ This {spec_type.lower()} was automatically generated from the prompt:
         labels.extend(["medium-priority", "enhancement"])
         
         return labels
+    
+    def _create_complete_workflow_specs(self, prompt: str, banking_context: Dict[str, Any], entities: Dict[str, Any]) -> Dict[str, Any]:
+        """Create comprehensive specifications for complete workflow."""
+        print("📋 Complete Workflow: Generating Epic, Features, and Stories...")
+        
+        # For complete workflows, start with epic creation and enhance it
+        epic_result = self.create_epic(prompt, banking_context, entities)
+        
+        # Mark as complete workflow type
+        epic_result["detected_type"] = "complete_workflow_epic"
+        epic_result["is_complete_workflow"] = True
+        epic_result["workflow_phase"] = "specification"
+        
+        print("✅ Complete Workflow: Epic specification created for comprehensive implementation")
+        
+        return epic_result
     
     def get_spec_agent_status(self) -> Dict[str, Any]:
         """Get current spec agent status."""
