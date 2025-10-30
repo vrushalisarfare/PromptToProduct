@@ -17,6 +17,8 @@ End-to-end workflow prompts that leverage the spec-driven development framework 
 4. **Code Generation**: Complete loan platform with compliance
 5. **Validation**: Testing, security, compliance verification
 
+Run the end to end workflow using LangGraph orchestrator
+
 ### Real-Time Fraud Detection System
 **Complete Workflow Prompt:**
 ```
