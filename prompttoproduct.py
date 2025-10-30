@@ -1092,7 +1092,18 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Direct prompt execution
   python prompttoproduct.py "Create a fraud detection system"
+  
+  # Automated modes
+  python prompttoproduct.py --auto "Build loan API"
+  echo "Create payment gateway" | python prompttoproduct.py
+  
+  # Environment variable prompt
+  set PROMPTTOPRODUCT_PROMPT=Create banking dashboard
+  python prompttoproduct.py --auto
+  
+  # System utilities
   python prompttoproduct.py --status
   python prompttoproduct.py --config
   python prompttoproduct.py --help
@@ -1100,6 +1111,9 @@ Examples:
 Environment Setup:
   See README.md - Environment Setup section for detailed instructions
   Quick setup: Set GITHUB_PERSONAL_ACCESS_TOKEN environment variable
+  
+Automation Variables:
+  PROMPTTOPRODUCT_PROMPT - Set prompt via environment variable
         """
     )
     
@@ -1107,6 +1121,12 @@ Environment Setup:
         "prompt", 
         nargs="?", 
         help="Natural language prompt to process"
+    )
+    
+    parser.add_argument(
+        "--auto", 
+        action="store_true", 
+        help="Run in fully automated mode (no user interaction)"
     )
     
     parser.add_argument(
@@ -1283,14 +1303,49 @@ Environment Setup:
         
         # Handle prompt processing
         if not args.prompt:
-            parser.print_help()
-            return
+            # Check for environment variable prompt
+            env_prompt = os.getenv('PROMPTTOPRODUCT_PROMPT')
+            if env_prompt:
+                args.prompt = env_prompt
+                if args.verbose:
+                    print(f"📝 Using prompt from environment variable: {env_prompt}")
+            # Check if there's input from stdin (piped input)
+            elif not sys.stdin.isatty():
+                # Read from stdin (piped input)
+                try:
+                    prompt_input = sys.stdin.read().strip()
+                    if prompt_input:
+                        args.prompt = prompt_input
+                        if args.verbose:
+                            print(f"📝 Using prompt from stdin: {prompt_input}")
+                    else:
+                        if not args.auto:
+                            print("❌ No prompt provided via command line, environment variable, or stdin")
+                        return
+                except:
+                    if not args.auto:
+                        print("❌ Error reading from stdin")
+                    return
+            else:
+                # No prompt and no stdin input
+                if args.auto:
+                    # In auto mode, just exit silently if no prompt
+                    return
+                else:
+                    # Show help in interactive mode
+                    parser.print_help()
+                    return
         
         print(f"\n🚀 PROMPTTOPRODUCT LANGGRAPH WORKFLOW")
         print("=" * 60)
         print(f"Prompt: {args.prompt}")
         print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("=" * 60)
+        
+        # In auto mode, suppress some output for cleaner automation
+        if args.auto:
+            # Minimal output for automation
+            print(f"🚀 Processing: {args.prompt[:50]}{'...' if len(args.prompt) > 50 else ''}")
         
         # Process prompt with LangGraph workflow
         result = system.process_prompt(args.prompt)

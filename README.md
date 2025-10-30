@@ -121,33 +121,60 @@ $env:GITHUB_TOKEN = "your_github_token_here"
 
 ### Basic Usage
 
-#### 1. Simple Prompt Execution
-```python
-from prompttoproduct import PromptToProductSystem
+#### 1. Direct CLI Execution (Recommended)
+```powershell
+# Simple prompt execution
+python prompttoproduct.py "Create an epic for digital loan origination platform"
 
+# Code generation
+python prompttoproduct.py "code loan application FastAPI endpoints with Pydantic validation"
+
+# System status
+python prompttoproduct.py --status
+```
+
+#### 2. Automated Execution (No User Interaction)
+```powershell
+# Automated mode with minimal output
+python prompttoproduct.py --auto "Build fraud detection API"
+
+# Piped input for automation
+echo "Create payment gateway" | python prompttoproduct.py
+
+# Environment variable execution
+$env:PROMPTTOPRODUCT_PROMPT = "implement loan underwriting algorithm"
+python prompttoproduct.py --auto
+Remove-Item env:PROMPTTOPRODUCT_PROMPT
+```
+
+#### 3. Programmatic Integration
+```python
 # Initialize system
+from prompttoproduct import PromptToProductSystem
 system = PromptToProductSystem()
 
 # Direct prompt processing
 result = system.process("Create an epic for digital loan origination platform")
 print(result)
-```
 
-#### 2. Interactive CLI Mode
-```powershell
-python prompttoproduct.py
-```
-
-#### 3. Programmatic Integration
-```python
 # Advanced usage with state management
-system = PromptToProductSystem()
 state = {
     "prompt": "Build a fraud detection API with real-time monitoring",
     "context": {"domain": "banking", "compliance": ["PCI-DSS", "AML"]}
 }
-
 result = system.execute_workflow(state)
+```
+
+#### 4. Batch Processing & Automation
+```powershell
+# JSON output for automation
+python prompttoproduct.py --json "Create banking API"
+
+# Multiple prompts via environment
+foreach ($prompt in @("Create epic", "Add feature", "Generate code")) {
+    $env:PROMPTTOPRODUCT_PROMPT = $prompt
+    python prompttoproduct.py --auto
+}
 ```
 
 ### Example Prompts
