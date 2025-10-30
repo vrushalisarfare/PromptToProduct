@@ -1,17 +1,19 @@
 [
   {
-    "timestamp": "2025-10-30T09:34:00.247179",
-    "prompt": "implement loan underwriting algorithm",
-    "intent": "implement_code",
-    "target_agent": "code_agent",
-    "confidence": 0.75,
+    "timestamp": "2025-10-30T09:51:43.898035",
+    "prompt": "Create an epic for a comprehensive digital banking platform with mobile payments and fraud detection",
+    "intent": "create_spec",
+    "target_agent": "spec_agent",
+    "confidence": 0.5,
     "banking_context": {
       "is_banking": true,
       "products": [
-        "loans"
+        "credit_cards",
+        "payments",
+        "digital_banking"
       ],
       "compliance": [],
-      "domain_confidence": 0.3
+      "domain_confidence": 0.8999999999999999
     }
   }
 ]

@@ -52,9 +52,13 @@ class SpecAgent:
         if PromptToProductSchema:
             try:
                 self.schema_processor = PromptToProductSchema()
-                print(f"✅ Schema processor initialized successfully")
+                print(f"✅ Schema processor initialized successfully with banking domain intelligence")
+                print(f"   📋 Product types: {len(self.schema_processor.banking_domain.get('product_types', {}))}, Actions: {len(self.schema_processor.actions)}")
             except Exception as e:
                 print(f"Warning: Schema processor initialization failed: {e}")
+                self.schema_processor = None
+        else:
+            print("⚠️ Schema processor not available - using manual specification creation")
     
     def process_specification_request(self, agent_params: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -121,25 +125,35 @@ class SpecAgent:
         """Create an epic specification from prompt."""
         print("📋 Creating Epic Specification...")
         
-        # Extract epic information
+        # Extract epic information for fallback
         epic_info = self._extract_epic_info(prompt, banking_context)
         
         if self.schema_processor:
             try:
-                # Use schema processor for creation
+                # Use schema processor with comprehensive banking intelligence
+                print("   🧠 Using schema processor with banking domain intelligence")
                 schema_result = self.schema_processor.process_prompt(prompt)
+                
                 if schema_result.get("success") and schema_result.get("file_created"):
+                    print(f"   ✅ Schema processor created: {schema_result.get('file_created')}")
+                    print(f"   🏦 Banking context: {schema_result.get('banking_context', {}).get('is_banking', False)}")
+                    
                     return {
                         "action": "create_epic",
                         "method": "schema_processor",
                         "created_files": [schema_result["file_created"]],
                         "epic_info": epic_info,
-                        "schema_result": schema_result
+                        "schema_result": schema_result,
+                        "banking_intelligence": schema_result.get("banking_context", {}),
+                        "compliance_context": schema_result.get("compliance_requirements", [])
                     }
+                else:
+                    print(f"   ⚠️ Schema processor failed: {schema_result.get('errors', ['Unknown error'])}")
             except Exception as e:
-                print(f"Schema processor failed, using manual creation: {e}")
+                print(f"   ❌ Schema processor error: {e}")
         
-        # Manual epic creation
+        # Fallback to manual epic creation
+        print("   🔧 Using manual epic creation")
         epic_file = self._create_epic_manually(epic_info)
         
         return {
@@ -153,27 +167,40 @@ class SpecAgent:
         """Create a feature specification from prompt."""
         print("🎯 Creating Feature Specification...")
         
-        # Extract feature information
+        # Extract feature information for fallback
         feature_info = self._extract_feature_info(prompt, banking_context, entities)
         
         if self.schema_processor:
             try:
-                # Use schema processor for banking features
-                if banking_context.get("is_banking"):
-                    schema_result = self.schema_processor.process_prompt(prompt)
-                    if schema_result.get("success") and schema_result.get("file_created"):
-                        return {
-                            "action": "create_banking_feature",
-                            "method": "schema_processor",
-                            "created_files": [schema_result["file_created"]],
-                            "feature_info": feature_info,
-                            "banking_context": banking_context,
-                            "schema_result": schema_result
-                        }
+                # Use schema processor with intelligent banking detection
+                print("   🧠 Analyzing prompt with banking domain intelligence")
+                schema_result = self.schema_processor.process_prompt(prompt)
+                
+                if schema_result.get("success") and schema_result.get("file_created"):
+                    detected_action = schema_result.get("detected_action", {}).get("action", "create_feature")
+                    is_banking = schema_result.get("banking_context", {}).get("is_banking", False)
+                    
+                    print(f"   ✅ Schema processor created: {schema_result.get('file_created')}")
+                    print(f"   🎯 Detected action: {detected_action}")
+                    print(f"   🏦 Banking context: {is_banking}")
+                    
+                    return {
+                        "action": "create_banking_feature" if is_banking else "create_feature",
+                        "method": "schema_processor",
+                        "created_files": [schema_result["file_created"]],
+                        "feature_info": feature_info,
+                        "banking_context": schema_result.get("banking_context", {}),
+                        "schema_result": schema_result,
+                        "detected_action": detected_action,
+                        "compliance_context": schema_result.get("compliance_requirements", [])
+                    }
+                else:
+                    print(f"   ⚠️ Schema processor failed: {schema_result.get('errors', ['Unknown error'])}")
             except Exception as e:
-                print(f"Schema processor failed, using manual creation: {e}")
+                print(f"   ❌ Schema processor error: {e}")
         
-        # Manual feature creation
+        # Fallback to manual feature creation
+        print("   🔧 Using manual feature creation")
         feature_file = self._create_feature_manually(feature_info, banking_context)
         
         return {
@@ -188,37 +215,44 @@ class SpecAgent:
         """Create a story specification from prompt."""
         print("📖 Creating Story Specification...")
         
-        # Extract story information
+        # Extract story information for fallback
         story_info = self._extract_story_info(prompt, banking_context, entities)
         
         if self.schema_processor:
             try:
-                # Use schema processor, especially for compliance stories
-                if banking_context.get("compliance_areas"):
-                    schema_result = self.schema_processor.process_prompt(prompt)
-                    if schema_result.get("success") and schema_result.get("file_created"):
-                        return {
-                            "action": "create_compliance_story",
-                            "method": "schema_processor",
-                            "created_files": [schema_result["file_created"]],
-                            "story_info": story_info,
-                            "compliance_context": banking_context.get("compliance_areas", []),
-                            "schema_result": schema_result
-                        }
+                # Use schema processor with compliance intelligence
+                print("   🧠 Analyzing prompt for compliance and banking context")
+                schema_result = self.schema_processor.process_prompt(prompt)
+                
+                if schema_result.get("success") and schema_result.get("file_created"):
+                    detected_action = schema_result.get("detected_action", {}).get("action", "create_story")
+                    compliance_reqs = schema_result.get("compliance_requirements", [])
+                    is_compliance = detected_action == "create_compliance_story" or len(compliance_reqs) > 0
+                    
+                    print(f"   ✅ Schema processor created: {schema_result.get('file_created')}")
+                    print(f"   🎯 Detected action: {detected_action}")
+                    print(f"   📋 Compliance focus: {is_compliance}")
+                    
+                    if compliance_reqs:
+                        print(f"   ⚖️ Compliance requirements: {', '.join(compliance_reqs)}")
+                    
+                    return {
+                        "action": "create_compliance_story" if is_compliance else "create_story",
+                        "method": "schema_processor",
+                        "created_files": [schema_result["file_created"]],
+                        "story_info": story_info,
+                        "compliance_context": compliance_reqs,
+                        "banking_context": schema_result.get("banking_context", {}),
+                        "schema_result": schema_result,
+                        "detected_action": detected_action
+                    }
                 else:
-                    schema_result = self.schema_processor.process_prompt(prompt)
-                    if schema_result.get("success") and schema_result.get("file_created"):
-                        return {
-                            "action": "create_story",
-                            "method": "schema_processor",
-                            "created_files": [schema_result["file_created"]],
-                            "story_info": story_info,
-                            "schema_result": schema_result
-                        }
+                    print(f"   ⚠️ Schema processor failed: {schema_result.get('errors', ['Unknown error'])}")
             except Exception as e:
-                print(f"Schema processor failed, using manual creation: {e}")
+                print(f"   ❌ Schema processor error: {e}")
         
-        # Manual story creation
+        # Fallback to manual story creation
+        print("   🔧 Using manual story creation")
         story_file = self._create_story_manually(story_info, banking_context)
         
         return {
@@ -1031,15 +1065,29 @@ This {spec_type.lower()} was automatically generated from the prompt:
             "version": "1.1",
             "status": "active",
             "schema_processor_available": self.schema_processor is not None,
+            "schema_processor_info": self._get_schema_info(),
             "github_mcp_integration": True,
             "github_configured": github_configured,
-            "supported_actions": ["create_epic", "create_feature", "create_story"],
+            "supported_actions": ["create_epic", "create_feature", "create_story", "create_banking_feature", "create_compliance_story"],
             "inputs": ["specs/prompt_schema.json"],
-            "outputs": ["specs/**"],
+            "outputs": ["specs/epics/**", "specs/features/**", "specs/stories/**"],
             "banking_domain_support": True,
             "compliance_story_support": True,
+            "intelligent_routing": self.schema_processor is not None,
             "langgraph_compatible": True
         }
+
+    def _get_schema_info(self) -> Dict[str, Any]:
+        """Get schema processor information."""
+        if self.schema_processor:
+            return {
+                "schema_version": self.schema_processor.schema.get("version", "unknown"),
+                "product_types": len(self.schema_processor.banking_domain.get("product_types", {})),
+                "actions_defined": len(self.schema_processor.actions),
+                "routing_rules": len(self.schema_processor.routing_rules),
+                "compliance_areas": len(self.schema_processor.banking_domain.get("compliance_areas", {}))
+            }
+        return {}
 
 
 def main():

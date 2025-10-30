@@ -52,6 +52,7 @@ try:
     from src.agents.spec_agent import SpecAgent  
     from src.agents.code_agent import CodeAgent
     from src.agents.validation_agent import ValidationAgent
+    from src.agents.github_mcp_project_agent import GitHubMCPProjectAgent
 except ImportError as e:
     print(f"❌ Error importing agents: {e}")
     print("Ensure all agent files are present in src/agents/")
@@ -95,6 +96,7 @@ class PromptToProduct:
         self.spec_agent = SpecAgent()
         self.code_agent = CodeAgent()
         self.validation_agent = ValidationAgent()
+        self.github_project_agent = GitHubMCPProjectAgent()
         
         # Initialize orchestrator functionality (merged from orchestrator.py)
         self.memory_context = []
@@ -105,7 +107,7 @@ class PromptToProduct:
         
         # Create workflow graph
         self.workflow = self._create_workflow()
-        print("✅ LangGraph workflow initialized")
+        print("✅ LangGraph workflow initialized with GitHub MCP integration")
 
     def _load_agents_config(self) -> Dict[str, Any]:
         """Load agent configuration from manifest."""
@@ -590,10 +592,30 @@ class PromptToProduct:
             "project": state.get("project_result")
         }
         
-        # Sync with GitHub if enabled and spec files were created
+        # Sync with GitHub using MCP Project Agent
         github_sync_results = []
-        if state.get("spec_result") and hasattr(self, '_sync_spec_files_with_github'):
-            github_sync_results = self._sync_spec_files_with_github(state.get("spec_result"))
+        if state.get("spec_result"):
+            try:
+                print("🚀 Starting GitHub MCP integration...")
+                
+                # Process spec results with GitHub MCP Project Agent
+                project_params = {
+                    "prompt": state["prompt"],
+                    "spec_result": state.get("spec_result"),
+                    "banking_context": state.get("banking_context", {}),
+                    "entities": state.get("entities", {})
+                }
+                
+                project_result = self.github_project_agent.process_spec_to_github(project_params)
+                state["project_result"] = project_result
+                final_results["project"] = project_result
+                
+                github_sync_results = project_result.get("github_operations", [])
+                print(f"✅ GitHub MCP integration completed: {len(github_sync_results)} operations")
+                
+            except Exception as e:
+                print(f"❌ GitHub MCP integration error: {e}")
+                github_sync_results = [{"status": "error", "error": str(e)}]
         
         state["final_result"] = {
             "workflow_id": f"langraph_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -611,7 +633,7 @@ class PromptToProduct:
             AIMessage(content="Workflow completed successfully")
         )
         
-        print("✅ LangGraph workflow completed")
+        print("✅ LangGraph workflow completed with GitHub MCP integration")
         
         return state
     
