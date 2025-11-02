@@ -19,6 +19,9 @@ PromptToProduct is an advanced agentic orchestration system that transforms natu
 - **Comprehensive Test Generation**: Automatic creation of extensive test suites with banking domain intelligence
 - **BDD Integration**: Embedded Gherkin scenarios in stories and GitHub issues for behavior-driven development
 
+### GitHub MCP Server Integration
+This system is designed to work with GitHub's Model Context Protocol (MCP) server, providing seamless integration with VS Code and GitHub Copilot.
+
 ### 🧠 LangGraph Orchestration
 
 The system uses LangGraph for sophisticated workflow management with advanced agentic capabilities:
