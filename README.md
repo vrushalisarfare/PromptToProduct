@@ -20,7 +20,7 @@ PromptToProduct is an advanced agentic orchestration system that transforms natu
 - **BDD Integration**: Embedded Gherkin scenarios in stories and GitHub issues for behavior-driven development
 
 ### GitHub MCP Server Integration
-This system is designed to work with GitHub's Model Context Protocol (MCP) server, providing seamless integration with VS Code and GitHub Copilot.
+This system is designed to work with GitHub's Model Context Protocol (MCP) server, providing seamless integration with VS Code and GitHub Copilot. For detailed setup instructions, see [GitHub MCP Setup Guide](GitHub-MCP-Setup-Guide.md).
 
 ### 🧠 LangGraph Orchestration
 
@@ -28,42 +28,44 @@ The system uses LangGraph for sophisticated workflow management with advanced ag
 
 #### **Complete Workflow Architecture**
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           LangGraph Workflow Execution                          │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│  1. ENTRY POINT: prompt input                                                  │
-│     ↓                                                                          │
-│  2. ORCHESTRATOR NODE: _orchestrator_node()                                   │
-│     • Analyze prompt intent and banking domain context                        │
-│     • Extract entities and confidence scoring                                 │
-│     • Update WorkflowState with intelligence                                  │
-│     ↓                                                                          │
-│  3. CONDITIONAL ROUTING: _route_after_orchestrator()                          │
-│     • Spec-driven development enforcement                                     │
-│     • Banking domain intelligent routing                                      │
-│     ↓                                                                          │
-│  4. AGENT EXECUTION NODES:                                                    │
-│     ├─ spec_agent_node() ──→ Banking specifications                          │
-│     ├─ code_agent_node() ──→ Production-ready code                           │
-│     └─ validation_agent_node() ──→ Quality assurance                         │
-│     ↓                                                                          │
-│  5. VALIDATION NODE: _validation_agent_node()                                 │
-│     • Compliance validation (PCI-DSS, SOX, GDPR)                             │
-│     • Banking domain validation                                               │
-│     ↓                                                                          │
-│  6. FINALIZATION NODE: _finalize_node()                                       │
-│     • GitHub MCP integration                                                  │
-│     • Workflow completion with audit trail                                    │
-│     ↓                                                                          │
-│  7. END: Complete validated result                                            │
-│                                                                                 │
-│  ERROR HANDLING: _error_handler_node()                                        │
-│     • Circuit breaker protection (max 3 errors)                              │
-│     • Graceful failure handling and recovery                                 │
-│                                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────┐    ┌───────────────┐    ┌─────────────┐    ┌─────────────────┐
+│   Orchestrator  │───▶│  Spec Agent   │───▶│ Code Agent  │───▶│ Validation Agent│
+│   (Router)      │    │  (Markdown)   │    │ (Python)    │    │ (QA & GitHub)   │
+└─────────────────┘    └───────────────┘    └─────────────┘    └─────────────────┘
 ```
+1. **Orchestrator Agent (orchestrator.py)**
+Purpose: Central routing and prompt classification system
+Capabilities:
+Natural language intent classification
+Banking domain detection (products, compliance, fraud)
+Multi-agent workflow routing
+Context memory and session management
+Real-time status monitoring
+2. **Spec Agent (spec_agent.py)**
+Purpose: Convert prompts to structured markdown specifications
+Capabilities:
+Epic, Feature, and Story generation
+Banking domain intelligence (loans, credit cards, fraud detection)
+Compliance story creation (KYC, AML, PCI-DSS)
+Schema processor integration
+Manual fallback systems
+3. **Code Agent (code_agent.py)**
+Purpose: Generate Python implementations from specifications
+Capabilities:
+Banking feature code generation (MyBank structure)
+Fraud detection models with ML capabilities
+Compliance validation systems
+Repository pattern implementations
+Automated Git commit workflows
+4. **Validation Agent (validation_agent.py)**
+Purpose: Quality assurance and GitHub synchronization
+Capabilities:
+Specification completeness validation
+Banking compliance scoring
+GitHub issue creation and management
+Project board synchronization
+Quality recommendations
+
 ## 📋 Spec-Driven Development Framework
 
 ### 🔄 Workflow Enforcement
@@ -145,16 +147,6 @@ Examples:
 "Build a loan origination system with AI risk assessment and full test automation"
 ```
 
-#### Banking-Specific Patterns with Testing
-```
-Product Type + Process + Technology + Compliance + Testing Framework
-
-Examples:
-"Create a credit card application system with fraud detection, PCI compliance, and comprehensive test suite"
-"Build a loan underwriting platform with AI scoring, regulatory reporting, and automated testing"
-"Add a payment processing feature with real-time monitoring, AML validation, and security tests"
-```
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -208,16 +200,6 @@ code/
     ├── api/                    # API documentation
     └── architecture/           # System design docs
 ```
-#### **Framework Utilization Guide**
-The enhanced system now supports complete banking development workflows with comprehensive testing:
-
-```
-Epic Creation → Feature Development → Story Implementation → Code Generation → Test Generation → Validation → Deployment
-     ↓              ↓                    ↓                    ↓              ↓                ↓           ↓
-Banking Context  Compliance Aware    Spec-Driven         Production Code  Comprehensive    Quality     GitHub
-Applied          Requirements        Implementation       Generation       Test Suites     Assurance   Integration
-```
-
 ##  Learning & Best Practices
 
 ### Best Practices for Prompts
