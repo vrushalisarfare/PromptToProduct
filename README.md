@@ -19,6 +19,9 @@ PromptToProduct is an advanced agentic orchestration system that transforms natu
 - **Comprehensive Test Generation**: Automatic creation of extensive test suites with banking domain intelligence
 - **BDD Integration**: Embedded Gherkin scenarios in stories and GitHub issues for behavior-driven development
 
+
+## 📋 Spec-Driven Development Framework
+
 ### GitHub MCP Server Integration
 This system is designed to work with GitHub's Model Context Protocol (MCP) server, providing seamless integration with VS Code and GitHub Copilot. For detailed setup instructions, see [GitHub MCP Setup Guide](GitHub-MCP-Setup-Guide.md).
 
@@ -34,39 +37,38 @@ The system uses LangGraph for sophisticated workflow management with advanced ag
 └─────────────────┘    └───────────────┘    └─────────────┘    └─────────────────┘
 ```
 1. **Orchestrator Agent (orchestrator.py)**
-Purpose: Central routing and prompt classification system
-Capabilities:
-Natural language intent classification
-Banking domain detection (products, compliance, fraud)
-Multi-agent workflow routing
-Context memory and session management
-Real-time status monitoring
-2. **Spec Agent (spec_agent.py)**
-Purpose: Convert prompts to structured markdown specifications
-Capabilities:
-Epic, Feature, and Story generation
-Banking domain intelligence (loans, credit cards, fraud detection)
-Compliance story creation (KYC, AML, PCI-DSS)
-Schema processor integration
-Manual fallback systems
-3. **Code Agent (code_agent.py)**
-Purpose: Generate Python implementations from specifications
-Capabilities:
-Banking feature code generation (MyBank structure)
-Fraud detection models with ML capabilities
-Compliance validation systems
-Repository pattern implementations
-Automated Git commit workflows
-4. **Validation Agent (validation_agent.py)**
-Purpose: Quality assurance and GitHub synchronization
-Capabilities:
-Specification completeness validation
-Banking compliance scoring
-GitHub issue creation and management
-Project board synchronization
-Quality recommendations
+- Purpose: Central routing and prompt classification system
+- Capabilities:
+- Natural language intent classification
+  Banking domain detection (products, compliance, fraud)
+  Multi-agent workflow routing
+- Context memory and session management
+- Real-time status monitoring
 
-## 📋 Spec-Driven Development Framework
+2. **Spec Agent (spec_agent.py)**
+- Purpose: Convert prompts to structured markdown specifications
+- Capabilities:
+  Epic, Feature, and Story generation
+  Banking domain intelligence (loans, credit cards, fraud detection)
+  Compliance story creation (KYC, AML, PCI-DSS)
+- Schema processor integration
+
+3. **Code Agent (code_agent.py)**
+- Purpose: Generate Python implementations from specifications
+- Capabilities:
+  Banking feature code generation (MyBank structure)
+  Fraud detection models with ML capabilities
+  Compliance validation systems
+  Repository pattern implementations
+  Automated Git commit workflows
+4. **Validation Agent (validation_agent.py)**
+- Purpose: Quality assurance and GitHub synchronization
+- Capabilities:
+  Specification completeness validation
+  Banking compliance scoring
+  GitHub issue creation and management
+  Project board synchronization
+  Quality recommendations
 
 ### 🔄 Workflow Enforcement
 The system enforces a specification-first approach:
