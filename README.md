@@ -1,6 +1,6 @@
-# PromptToProduct: Unified Banking Agent System
+# PromptToProduct: Unified Agent System
 
-> **A comprehensive LangGraph-powered agentic orchestration system for banking domain development with intelligent prompt-to-product workflows and advanced test generation capabilities.**
+> **A comprehensive LangGraph-powered agentic orchestration system for banking domain development with intelligent prompt-to-product workflows**
 
 🏦 **Banking Domain Intelligence** | 🤖 **Multi-Agent Orchestration** | 📋 **Spec-Driven Development** | 🔄 **Complete Automation** | 🧪 **Comprehensive Testing**
 
