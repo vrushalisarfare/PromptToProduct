@@ -99,8 +99,11 @@ class ConfigManager:
     
     def _load_github_config(self) -> GitHubConfig:
         """Load GitHub configuration."""
+        # Get token from environment variable first, then from .env file
+        token = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+        
         return GitHubConfig(
-            token=os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
+            token=token,  # This will be None if not set, which is correct for security
             repo_owner=os.getenv("GITHUB_REPO_OWNER", "vrushalisarfare"),
             repo_name=os.getenv("GITHUB_REPO_NAME", "PromptToProduct"),
             base_url=os.getenv("GITHUB_BASE_URL", "https://api.github.com")
@@ -164,7 +167,7 @@ class ConfigManager:
         
         # Check GitHub configuration
         if not self.github.token:
-            issues.append("GitHub token not configured")
+            issues.append("GITHUB_PERSONAL_ACCESS_TOKEN environment variable not set")
         elif len(self.github.token) < 10:
             warnings.append("GitHub token seems too short")
         
@@ -180,6 +183,7 @@ class ConfigManager:
             "valid": len(issues) == 0,
             "issues": issues,
             "warnings": warnings,
+            "github_token_configured": bool(self.github.token),
             "summary": self.get_config_summary()
         }
 

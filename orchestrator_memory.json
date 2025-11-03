@@ -1,16 +1,18 @@
 [
   {
-    "timestamp": "2025-10-27T11:11:52.681823",
-    "prompt": "Create a story for implementing AI model monitoring and bias detection for fair lending practices under F005 AI-powered credit scoring engine",
-    "intent": "create_story",
-    "target_agent": "spec-agent",
+    "timestamp": "2025-10-30T13:01:47.520135",
+    "prompt": "Create specifications and implement complete digital loan origination platform with AI underwriting",
+    "intent": "complete_workflow",
+    "target_agent": "spec_agent",
+    "confidence": 0.6,
     "banking_context": {
       "is_banking": true,
-      "product_types": [
-        "loans"
+      "products": [
+        "loans",
+        "digital_banking"
       ],
-      "compliance_areas": [],
-      "primary_product": "loans"
+      "compliance": [],
+      "domain_confidence": 0.6
     }
   }
 ]
