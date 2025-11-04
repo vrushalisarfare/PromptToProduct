@@ -239,6 +239,24 @@ code/
 
 ---
 
+### Banking Domain Intelligence
+- **Product Types**: Credit Cards, Loans, Accounts, Payments, Investments
+- **Compliance Areas**: KYC, AML, PCI-DSS, SOX, Basel III
+- **Fraud Detection**: Real-time transaction monitoring, ML-powered risk scoring
+- **Regulatory Support**: Automated compliance checking and reporting
+
+### Code Generation Capabilities
+- **Architecture Patterns**: Repository, Service, Model, API patterns
+- **Banking Modules**: Account management, loan processing, fraud detection
+- **Quality Assurance**: Automated testing, validation, and documentation
+- **GitHub Integration**: Issue tracking, project boards, automated commits
+
+### Intelligent Routing
+- **Intent Classification**: Automatic prompt categorization and routing
+- **Context Awareness**: Banking domain detection and specialization
+- **Multi-Agent Coordination**: Seamless workflow between agents
+- **Memory Management**: Session context and conversation history
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see CONTRIBUTING.md for guidelines on:

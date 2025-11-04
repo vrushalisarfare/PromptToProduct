@@ -1,1 +1,0 @@
-"""MyBank Payments Module"""
