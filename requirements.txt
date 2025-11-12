@@ -17,6 +17,13 @@ langsmith>=0.0.83
 # Optional but recommended for enhanced functionality
 python-multipart>=0.0.6
 uvicorn>=0.24.0
+fastapi>=0.111.0
+pydantic>=2.7.0
+httpx>=0.27.0
+aioredis>=2.0.1
+cryptography>=42.0.0
+pyjwt>=2.8.0
+argon2-cffi>=23.1.0
 
 # Playwright MCP Server for web automation
 playwright-mcp>=0.1.0

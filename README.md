@@ -118,6 +118,26 @@ prompts/
     └── fraud_detection.md      # Fraud detection examples
 
 ```
+### Mobile Banking App (Biometric) + Auth Service
+
+1. Start Auth Service (FastAPI)
+
+```powershell
+# From repository root
+pip install -r requirements.txt
+$env:AUTH_JWT_SECRET="change-me-strong" ; uvicorn code.MyBank.api.auth_service.auth_api:app --reload --port 8000
+```
+
+2. Run Mobile App (Expo)
+
+```powershell
+cd code/mobile-banking-app
+npm install
+$env:EXPO_PUBLIC_API_BASE_URL="http://localhost:8000/api/v1" ; npm run start
+```
+
+Demo login: `demo` / `ChangeMe123!`
+
 ### Example Prompts
 
 #### Epic Creation
