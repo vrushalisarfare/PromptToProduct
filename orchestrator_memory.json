@@ -1,18 +1,17 @@
 [
   {
-    "timestamp": "2025-10-30T13:01:47.520135",
-    "prompt": "Create specifications and implement complete digital loan origination platform with AI underwriting",
+    "timestamp": "2025-11-03T15:48:32.348313",
+    "prompt": "Create specifications and implement complete payment gateway from specifications to deployment with tokenization",
     "intent": "complete_workflow",
     "target_agent": "spec_agent",
     "confidence": 0.6,
     "banking_context": {
       "is_banking": true,
       "products": [
-        "loans",
-        "digital_banking"
+        "payments"
       ],
       "compliance": [],
-      "domain_confidence": 0.6
+      "domain_confidence": 0.3
     }
   }
 ]

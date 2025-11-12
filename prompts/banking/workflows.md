@@ -18,7 +18,7 @@ End-to-end workflow prompts that leverage the spec-driven development framework 
 5. **Validation**: Testing, security, compliance verification
 
 Run the end to end workflow using LangGraph orchestrator
-Give the list of issues created in Github Issues
+
 
 ### Real-Time Fraud Detection System
 **Complete Workflow Prompt:**
@@ -32,6 +32,7 @@ Give the list of issues created in Github Issues
 3. **Story Implementation**: Detection algorithms, real-time processing, compliance reporting
 4. **Code Generation**: Fraud detection engine with ML models
 5. **Validation**: Performance testing, accuracy validation, compliance audit
+Run the end to end workflow using LangGraph orchestrator
 
 ### Mobile Banking Application
 **Complete Workflow Prompt:**

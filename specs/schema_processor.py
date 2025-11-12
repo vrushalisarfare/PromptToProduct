@@ -43,7 +43,7 @@ class PromptToProductSchema:
         try:
             with open(self.schema_path, 'r', encoding='utf-8') as f:
                 schema = json.load(f)
-            print(f"✅ Schema loaded: {schema.get('name', 'Unknown')} v{schema.get('version', '0.0')}")
+            print(f"[OK] Schema loaded: {schema.get('name', 'Unknown')} v{schema.get('version', '0.0')}")
             return schema
         except FileNotFoundError:
             print(f"❌ Schema file not found: {self.schema_path}")
@@ -892,7 +892,7 @@ def main():
     result = processor.process_prompt(args.prompt)
     
     # Display results
-    print(f"✅ Success: {result.get('success', False)}")
+    print(f"[OK] Success: {result.get('success', False)}")
     print(f"🎯 Action: {result.get('detected_action', {}).get('action', 'unknown')}")
     print(f"🏦 Banking: {result.get('banking_context', {}).get('is_banking', False)}")
     print(f"📁 File Created: {result.get('file_created', 'None')}")

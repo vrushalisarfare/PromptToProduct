@@ -84,14 +84,12 @@ class GitHubMCPProjectAgent:
         self.has_valid_token = bool(self.github_config.get("token"))
         self.mcp_mode = True  # Always use MCP tools in VS Code environment
         
-        print(f"✅ GitHub MCP Project Agent initialized")
-        print(f"   📋 Projects enabled: {self.project_config['enabled']}")
-        print(f"   🏢 Organization: {self.project_config['org_name']}")
-        print(f"   📊 Project: #{self.project_config['project_number']}")
-        print(f"   🔑 Token available: {self.has_valid_token}")
-        print(f"   🔧 MCP mode: {self.mcp_mode}")
-        print(f"   🔑 Token available: {self.has_valid_token}")
-        print(f"   🔧 MCP mode: {self.mcp_mode}")
+        print(f"[OK] GitHub MCP Project Agent initialized")
+        print(f"   [PROJECTS] Projects enabled: {self.project_config['enabled']}")
+        print(f"   [ORG] Organization: {self.project_config['org_name']}")
+        print(f"   [PROJECT] Project: #{self.project_config['project_number']}")
+        print(f"   [TOKEN] Token available: {self.has_valid_token}")
+        print(f"   [MCP] MCP mode: {self.mcp_mode}")
     
     def create_spec_project_items(self, spec_results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
@@ -119,7 +117,7 @@ class GitHubMCPProjectAgent:
             }
         
         if not self.github_config.get("token") and not self.mcp_mode:
-            print("   ⚠️ Warning: No GitHub token available, running in simulation mode")
+            print("   [WARNING] Warning: No GitHub token available, running in simulation mode")
             return {
                 "success": False,
                 "reason": "No GitHub token available - set GITHUB_PERSONAL_ACCESS_TOKEN",
@@ -150,7 +148,7 @@ class GitHubMCPProjectAgent:
                         "pending_issue_creation": True
                     })
                     
-                    print(f"   ✅ Prepared MCP action for {spec_result.get('spec_type', 'Spec').title()}: {spec_result.get('title', 'Unknown')}")
+                    print(f"   [OK] Prepared MCP action for {spec_result.get('spec_type', 'Spec').title()}: {spec_result.get('title', 'Unknown')}")
                 else:
                     errors.append(f"Failed to prepare MCP action for {spec_result.get('file_path', 'unknown')}")
                     
@@ -322,7 +320,7 @@ class GitHubMCPProjectAgent:
         """
         Execute the prepared MCP actions using actual GitHub MCP tools.
         """
-        print("🚀 Executing GitHub MCP Actions...")
+        print("[EXEC] Executing GitHub MCP Actions...")
         
         executed_actions = []
         issues_created = 0
@@ -332,7 +330,7 @@ class GitHubMCPProjectAgent:
             spec_context = action.get('spec_context', {})
             tool_name = action.get('tool_name')
             
-            print(f"   📋 {action_type}: {spec_context.get('title', 'Unknown')}")
+            print(f"   [ACTION] {action_type}: {spec_context.get('title', 'Unknown')}")
             
             try:
                 if action_type == "create_issue" and tool_name == "mcp_github_issue_write":

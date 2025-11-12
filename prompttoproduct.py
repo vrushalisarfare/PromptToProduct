@@ -43,7 +43,7 @@ try:
     from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
     LANGGRAPH_AVAILABLE = True
 except ImportError as e:
-    print(f"❌ LangGraph not available: {e}")
+    print(f"[ERROR] LangGraph not available: {e}")
     print("Install with: pip install langgraph langchain langchain-core")
     sys.exit(1)
 
@@ -54,7 +54,7 @@ try:
     from src.agents.validation_agent import ValidationAgent
     from src.agents.github_mcp_project_agent import GitHubMCPProjectAgent
 except ImportError as e:
-    print(f"❌ Error importing agents: {e}")
+    print(f"[ERROR] Error importing agents: {e}")
     print("Ensure all agent files are present in src/agents/")
     sys.exit(1)
 
@@ -90,7 +90,10 @@ class PromptToProduct:
     
     def __init__(self):
         """Initialize LangGraph orchestrator."""
-        print("🚀 Initializing PromptToProduct with LangGraph orchestration...")
+        print("[INIT] Initializing PromptToProduct with LangGraph orchestration...")
+        
+        # Initialize MCP tools availability
+        self.mcp_tools_available = self._check_mcp_tools_availability()
         
         # Initialize existing agents
         self.spec_agent = SpecAgent()
@@ -108,7 +111,7 @@ class PromptToProduct:
         # Create workflow graph
         self.workflow = self._create_workflow()
         self._phase_counter = 0  # Track phase progression
-        print("✅ LangGraph workflow initialized with GitHub MCP integration")
+        print("[OK] LangGraph workflow initialized with GitHub MCP integration")
     
     def _persist_workflow_state(self, state: WorkflowState, is_complete_workflow: bool, workflow_phase: str) -> None:
         """Persist workflow state in messages for reliable LangGraph state management."""
@@ -506,7 +509,7 @@ class PromptToProduct:
     def _orchestrator_node(self, state: WorkflowState) -> WorkflowState:
         """Orchestrator node - analyze prompt and determine routing."""
         try:
-            print("🎯 LangGraph Orchestrator: Analyzing prompt...")
+            print("[ANALYZE] LangGraph Orchestrator: Analyzing prompt...")
             
             result = self.classify_prompt(state["prompt"])
             
@@ -521,19 +524,19 @@ class PromptToProduct:
             if state["intent"] == "complete_workflow":
                 self._phase_counter = 1
                 self._persist_workflow_state(state, True, "specification")
-                print("🔄 Complete Workflow: Marked for Phase 1 - Epic/Feature/Story Creation")
-                print(f"🔄 Complete Workflow: Phase Counter: {self._phase_counter}")
+                print("[WORKFLOW] Complete Workflow: Marked for Phase 1 - Epic/Feature/Story Creation")
+                print(f"[WORKFLOW] Complete Workflow: Phase Counter: {self._phase_counter}")
             
             # Add message
             state["messages"].append(
                 AIMessage(content=f"Analyzed prompt with intent: {state['intent']}")
             )
             
-            print(f"✅ Intent classified as: {state['intent']}")
+            print(f"[OK] Intent classified as: {state['intent']}")
             print(f"🔍 Orchestrator final state - complete_workflow: {state.get('is_complete_workflow', False)}, phase: {state.get('workflow_phase', '')}")
             
         except Exception as e:
-            print(f"❌ Orchestrator error: {e}")
+            print(f"[ERROR] Orchestrator error: {e}")
             state["workflow_status"] = "error"
             state["error_count"] += 1
             state["messages"].append(
@@ -545,7 +548,7 @@ class PromptToProduct:
     def _spec_agent_node(self, state: WorkflowState) -> WorkflowState:
         """Spec agent node - generate specifications."""
         try:
-            print("📋 LangGraph: Generating specifications...")
+            print("[SPEC] LangGraph: Generating specifications...")
             is_complete, phase, counter = self._extract_workflow_state(state)
             print(f"🔍 Spec agent state - complete_workflow: {is_complete}, phase: {phase}, counter: {counter}")
             
@@ -567,7 +570,7 @@ class PromptToProduct:
                 AIMessage(content=f"Generated specification: {result.get('spec_type', 'unknown')}")
             )
             
-            print(f"✅ Generated {result.get('spec_type', 'unknown')} specification")
+            print(f"[OK] Generated {result.get('spec_type', 'unknown')} specification")
             print(f"🔍 Spec agent final state - complete_workflow: {state.get('is_complete_workflow', False)}, phase: {state.get('workflow_phase', '')}")
             
         except Exception as e:
@@ -583,7 +586,7 @@ class PromptToProduct:
     def _code_agent_node(self, state: WorkflowState) -> WorkflowState:
         """Code agent node - generate implementation code."""
         try:
-            print("🔧 LangGraph: Generating code implementation...")
+            print("[CODE] LangGraph: Generating code implementation...")
             
             # Enhanced agent params with spec context for better code generation
             agent_params = {
@@ -664,30 +667,145 @@ class PromptToProduct:
             "project": state.get("project_result")
         }
         
-        # Sync with GitHub using MCP Project Agent
+        # Sync with GitHub using DIRECT MCP calls
         github_sync_results = []
+        issues_created_count = 0
+        
         if state.get("spec_result"):
             try:
-                print("🚀 Starting GitHub MCP integration...")
+                print("[GITHUB] Starting GitHub MCP integration...")
                 
-                # Process spec results with GitHub MCP Project Agent
-                project_params = {
-                    "prompt": state["prompt"],
-                    "spec_result": state.get("spec_result"),
-                    "banking_context": state.get("banking_context", {}),
-                    "entities": state.get("entities", {})
+                # Get spec result data
+                spec_result = state.get("spec_result")
+                
+                # Extract GitHub MCP data from spec results
+                github_mcp_data = spec_result.get("github_mcp_data", [])
+                
+                if github_mcp_data:
+                    print(f"🔗 GitHub MCP Project Agent: Processing spec results...")
+                    print(f"[PROCESS] Processing {len(github_mcp_data)} spec result(s) for GitHub")
+                    
+                    # Create GitHub issues DIRECTLY using MCP tools
+                    for item in github_mcp_data:
+                        try:
+                            print(f"[EXEC] Executing GitHub MCP Actions...")
+                            
+                            # Create repository issue FIRST, then add to GitHub Project
+                            issue_data = item.get("mcp_issue_data", {})
+                            if issue_data:
+                                print(f"   [ITEM] create_project_item: {item.get('issue_title', 'Unknown')}")
+                                print(f"   ?? Creating GitHub repository issue: {item.get('issue_title', 'Unknown')}")
+                                print(f"   [TOOL] Executing MCP tool: github_issue_write")
+                                print(f"   [CREATE] Creating GitHub repository issue first...")
+                                
+                                # Create repository issue first, then add to project
+                                try:
+                                    issue_result = self._execute_mcp_github_issue_write(issue_data)
+                                    if issue_result and issue_result.get("id"):
+                                        # Step 1: Repository issue created successfully
+                                        issue_number = issue_result.get("number")
+                                        issue_id = issue_result.get("id")
+                                        issues_created_count += 1
+                                        print(f"   ✅ Repository issue #{issue_number} created successfully")
+                                        print(f"   📊 Step 2: Ready to add issue to GitHub Project #2...")
+                                        
+                                        # Step 2: Issue ready for project addition
+                                        github_sync_results.append({
+                                            "type": "issue_created_for_project",
+                                            "issue_number": issue_number,
+                                            "issue_id": issue_id,
+                                            "issue_url": issue_result.get("html_url"),
+                                            "title": issue_data.get("title"),
+                                            "status": "ready_for_project",
+                                            "project_action": f"Add issue #{issue_number} to Project #2"
+                                        })
+                                    elif issue_result and issue_result.get("mcp_execution_needed"):
+                                            # MCP tools need to be called by VS Code
+                                            print(f"   [MCP] MCP execution prepared - requires VS Code MCP environment")
+                                            github_sync_results.append({
+                                            "type": "mcp_prepared",
+                                            "tool": issue_result.get("tool"),
+                                            "parameters": issue_result.get("parameters"),
+                                            "title": issue_data.get("title"),
+                                            "status": "mcp_ready",
+                                            "note": "MCP tool call prepared for VS Code execution"
+                                        })
+                                    else:
+                                        print(f"   ❌ Repository issue creation failed")
+                                        github_sync_results.append({
+                                            "type": "issue_creation_failed",
+                                            "error": "MCP tool returned no result",
+                                            "title": issue_data.get("title"),
+                                            "status": "failed"
+                                        })
+                                except Exception as mcp_error:
+                                    print(f"   ❌ MCP execution error: {mcp_error}")
+                                    github_sync_results.append({
+                                        "type": "issue_error",
+                                        "error": str(mcp_error),
+                                        "title": issue_data.get("title"),
+                                        "status": "error"
+                                    })
+                            
+                            # Create file directly
+                            file_data = item.get("mcp_file_data", {})
+                            if file_data:
+                                print(f"   [FILE] create_file: {item.get('issue_title', 'Unknown')}")
+                                print(f"   📄 Creating GitHub file: {file_data.get('path', 'unknown')}")
+                                
+                                try:
+                                    file_result = self._execute_mcp_github_create_file(file_data)
+                                    if file_result and file_result.get("commit"):
+                                        print(f"   ✅ GitHub file created successfully")
+                                        github_sync_results.append({
+                                            "type": "file_created",
+                                            "file_path": file_data.get("path"),
+                                            "commit_sha": file_result.get("commit", {}).get("sha"),
+                                            "status": "success"
+                                        })
+                                    else:
+                                        print(f"   ❌ MCP file creation failed")
+                                        github_sync_results.append({
+                                            "type": "file_failed",
+                                            "error": "MCP tool returned no result",
+                                            "file_path": file_data.get("path"),
+                                            "status": "failed"
+                                        })
+                                        
+                                except Exception as file_error:
+                                    print(f"   ❌ File creation error: {file_error}")
+                                    github_sync_results.append({
+                                        "type": "file_error",
+                                        "error": str(file_error),
+                                        "file_path": file_data.get("path"),
+                                        "status": "error"
+                                    })
+                                    
+                        except Exception as item_error:
+                            print(f"   ❌ Error processing item: {item_error}")
+                            github_sync_results.append({
+                                "type": "processing_error",
+                                "error": str(item_error),
+                                "status": "error"
+                            })
+                    
+                    print(f"✅ GitHub MCP integration completed: {len(github_sync_results)} operations")
+                else:
+                    print("[INFO] No GitHub MCP data found in spec results")
+                
+                # Set project result
+                state["project_result"] = {
+                    "success": len(github_sync_results) > 0,
+                    "issues_created": issues_created_count,
+                    "operations_completed": len(github_sync_results),
+                    "github_operations": github_sync_results
                 }
-                
-                project_result = self.github_project_agent.process_spec_to_github(project_params)
-                state["project_result"] = project_result
-                final_results["project"] = project_result
-                
-                github_sync_results = project_result.get("github_operations", [])
-                print(f"✅ GitHub MCP integration completed: {len(github_sync_results)} operations")
+                final_results["project"] = state["project_result"]
                 
             except Exception as e:
                 print(f"❌ GitHub MCP integration error: {e}")
                 github_sync_results = [{"status": "error", "error": str(e)}]
+                issues_created_count = 0
         
         state["final_result"] = {
             "workflow_id": f"langraph_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -711,6 +829,117 @@ class PromptToProduct:
         
         return state
     
+    def _execute_mcp_github_issue_write(self, issue_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Execute the GitHub issue creation MCP tool directly."""
+        try:
+            print(f"   🔍 Executing MCP GitHub Issue Creation...")
+            
+            # Try to use MCP tools if available in VS Code environment
+            if self._is_in_vscode_environment():
+                print(f"   ✅ VS Code MCP environment detected")
+                
+                # Import MCP tools dynamically (they should be available in VS Code)
+                try:
+                    # Try to access MCP tools through VS Code's Python environment
+                    import sys
+                    
+                    # Check if MCP tools are available as imported modules
+                    if hasattr(sys.modules.get('__main__', {}), 'mcp_github_issue_write'):
+                        mcp_tool = getattr(sys.modules['__main__'], 'mcp_github_issue_write')
+                        print(f"   [CALL] Found MCP tool in __main__")
+                        
+                        result = mcp_tool(
+                            method="create",
+                            owner=issue_data.get("owner"),
+                            repo=issue_data.get("repo"),
+                            title=issue_data.get("title"),
+                            body=issue_data.get("body"),
+                            labels=issue_data.get("labels", [])
+                        )
+                        return result
+                    
+                    # Try alternative access method
+                    elif 'mcp_github_issue_write' in globals():
+                        mcp_tool = globals()['mcp_github_issue_write']
+                        print(f"   [CALL] Found MCP tool in globals")
+                        
+                        result = mcp_tool(
+                            method="create",
+                            owner=issue_data.get("owner"),
+                            repo=issue_data.get("repo"),
+                            title=issue_data.get("title"),
+                            body=issue_data.get("body"),
+                            labels=issue_data.get("labels", [])
+                        )
+                        return result
+                    
+                    else:
+                        print(f"   ⚠️ MCP tools not directly accessible in Python context")
+                        print(f"   💡 MCP tools require VS Code environment for execution")
+                        
+                        # Prepare MCP execution data for VS Code
+                        return {
+                            "mcp_execution_needed": True,
+                            "tool": "mcp_github_issue_write",
+                            "parameters": {
+                                "method": "create",
+                                "owner": issue_data.get("owner"),
+                                "repo": issue_data.get("repo"),
+                                "title": issue_data.get("title"),
+                                "body": issue_data.get("body"),
+                                "labels": issue_data.get("labels", [])
+                            },
+                            "status": "ready_for_vscode_execution"
+                        }
+                        
+                except ImportError as import_error:
+                    print(f"   ⚠️ MCP tools import error: {import_error}")
+                    return {
+                        "mcp_execution_needed": True,
+                        "tool": "mcp_github_issue_write",
+                        "parameters": {
+                            "method": "create",
+                            "owner": issue_data.get("owner"),
+                            "repo": issue_data.get("repo"),
+                            "title": issue_data.get("title"),
+                            "body": issue_data.get("body"),
+                            "labels": issue_data.get("labels", [])
+                        },
+                        "import_error": str(import_error)
+                    }
+            
+            else:
+                print(f"   ⚠️ Not in VS Code environment - MCP tools not available")
+                return {
+                    "mcp_execution_needed": True,
+                    "tool": "mcp_github_issue_write",
+                    "parameters": {
+                        "method": "create",
+                        "owner": issue_data.get("owner"),
+                        "repo": issue_data.get("repo"),
+                        "title": issue_data.get("title"),
+                        "body": issue_data.get("body"),
+                        "labels": issue_data.get("labels", [])
+                    },
+                    "error": "VS Code environment required for MCP tools"
+                }
+                
+        except Exception as e:
+            print(f"   ❌ Error in MCP tool execution: {e}")
+            return {
+                "error": str(e),
+                "mcp_execution_needed": True,
+                "tool": "mcp_github_issue_write",
+                "parameters": {
+                    "method": "create",
+                    "owner": issue_data.get("owner"),
+                    "repo": issue_data.get("repo"),
+                    "title": issue_data.get("title"),
+                    "body": issue_data.get("body"),
+                    "labels": issue_data.get("labels", [])
+                }
+            }
+    
     def _sync_spec_files_with_github(self, spec_results: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Sync specification files with GitHub repository using MCP integration."""
         github_results = []
@@ -722,10 +951,10 @@ class PromptToProduct:
             
             # Check if GitHub sync is enabled and configured
             if not github_config.is_configured or not system_config.auto_sync_github:
-                print("ℹ️ GitHub sync not configured or disabled")
+                print("[INFO] GitHub sync not configured or disabled")
                 return github_results
             
-            print("🚀 Starting GitHub MCP synchronization...")
+            print("[SYNC] Starting GitHub MCP synchronization...")
             
             # Extract GitHub data from spec results
             github_data_items = self._extract_github_data_from_specs(spec_results)
@@ -836,7 +1065,7 @@ class PromptToProduct:
             
             # Check if GitHub issue creation is enabled
             if os.getenv("AUTO_CREATE_GITHUB_ISSUES", "true").lower() != "true":
-                print("ℹ️ GitHub issue creation disabled")
+                print("[INFO] GitHub issue creation disabled")
                 return {"status": "disabled", "message": "GitHub issue creation disabled"}
             
             # Use actual GitHub MCP integration
@@ -1217,19 +1446,156 @@ class PromptToProduct:
             "agents": {
                 "spec_agent": "✅ Available", 
                 "code_agent": "✅ Available",
-                "validation_agent": "✅ Available"
+                "validation_agent": "✅ Available",
+                "github_mcp_agent": "✅ Available"
             },
             "features": {
                 "orchestration": "✅ Integrated",
                 "classification": "✅ Banking domain detection",
                 "routing": "✅ Intent-based routing",
                 "memory": "✅ Context persistence",
-                "langgraph": "✅ Stateful workflows"
+                "langgraph": "✅ Stateful workflows",
+                "github_mcp": "✅ MCP Server Integration" if self.mcp_tools_available else "⚠️ MCP Tools Pending"
+            },
+            "mcp_integration": {
+                "server_configured": True,
+                "tools_available": self.mcp_tools_available,
+                "vscode_environment": self._is_in_vscode_environment(),
+                "github_token": bool(os.getenv('GITHUB_PERSONAL_ACCESS_TOKEN'))
             },
             "workflow_nodes": 6,
             "memory_entries": len(self.memory_context),
             "timestamp": datetime.now().isoformat()
         }
+
+    def _check_mcp_tools_availability(self) -> bool:
+        """Check if MCP tools are available in the current environment."""
+        try:
+            # Check for VS Code environment
+            is_vscode = self._is_in_vscode_environment()
+            
+            # Check for MCP tools in various scopes
+            mcp_tools = [
+                'mcp_github_issue_write',
+                'mcp_github_create_or_update_file',
+                'mcp_github_create_pull_request'
+            ]
+            
+            tools_found = 0
+            for tool_name in mcp_tools:
+                if tool_name in globals() or hasattr(__builtins__, tool_name):
+                    tools_found += 1
+            
+            print(f"[MCP] Environment check - VS Code: {is_vscode}, Tools found: {tools_found}/{len(mcp_tools)}")
+            return is_vscode and tools_found > 0
+            
+        except Exception as e:
+            print(f"[MCP] Availability check error: {e}")
+            return False
+    
+    def _is_in_vscode_environment(self) -> bool:
+        """Check if we're running in VS Code environment where MCP tools are available."""
+        # Check for VS Code specific environment variables
+        vscode_indicators = [
+            os.getenv('VSCODE_PID'),
+            os.getenv('VSCODE_CWD'),
+            os.getenv('TERM_PROGRAM') == 'vscode',
+            os.getenv('VSCODE_INJECTION') == '1'
+        ]
+        return any(vscode_indicators)
+
+    def _execute_mcp_github_create_file(self, file_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Execute GitHub file creation using MCP tools."""
+        try:
+            print(f"   🎯 GitHub File Creation via MCP")
+            
+            # Check if we're in VS Code environment where MCP tools are available
+            if self._is_in_vscode_environment():
+                print(f"   ✅ VS Code environment detected - MCP tools available")
+                
+                # Prepare file creation data for MCP
+                file_creation_data = {
+                    "owner": os.getenv('GITHUB_USERNAME', 'vrushalisarfare'),
+                    "repo": os.getenv('GITHUB_REPO', 'PromptToProduct'),
+                    "path": file_data.get("path", ""),
+                    "content": file_data.get("content", ""),
+                    "message": file_data.get("message", "Auto-generated file via MCP"),
+                    "branch": os.getenv('GITHUB_BRANCH', 'feature/langchaingraph')
+                }
+                
+                print(f"   📁 File: {file_creation_data['path']}")
+                print(f"   🔄 Attempting MCP file creation...")
+                
+                # Try to access MCP file creation tool
+                try:
+                    import sys
+                    
+                    # Check if MCP tools are available
+                    if hasattr(sys.modules.get('__main__', {}), 'mcp_github_create_or_update_file'):
+                        mcp_tool = getattr(sys.modules['__main__'], 'mcp_github_create_or_update_file')
+                        print(f"   [CALL] Found MCP file tool in __main__")
+                        
+                        result = mcp_tool(
+                            owner=file_creation_data["owner"],
+                            repo=file_creation_data["repo"],
+                            path=file_creation_data["path"],
+                            content=file_creation_data["content"],
+                            message=file_creation_data["message"],
+                            branch=file_creation_data["branch"]
+                        )
+                        return result
+                    
+                    elif 'mcp_github_create_or_update_file' in globals():
+                        mcp_tool = globals()['mcp_github_create_or_update_file']
+                        print(f"   [CALL] Found MCP file tool in globals")
+                        
+                        result = mcp_tool(
+                            owner=file_creation_data["owner"],
+                            repo=file_creation_data["repo"],
+                            path=file_creation_data["path"],
+                            content=file_creation_data["content"],
+                            message=file_creation_data["message"],
+                            branch=file_creation_data["branch"]
+                        )
+                        return result
+                    
+                    else:
+                        print(f"   ⚠️ MCP file tools not directly accessible")
+                        print(f"   💡 Preparing for VS Code MCP execution")
+                        
+                        # Return MCP execution data for VS Code
+                        return {
+                            "mcp_execution_needed": True,
+                            "tool": "mcp_github_create_or_update_file",
+                            "parameters": file_creation_data,
+                            "status": "ready_for_vscode_execution"
+                        }
+                        
+                except Exception as tool_error:
+                    print(f"   ⚠️ MCP tool access error: {tool_error}")
+                    return {
+                        "mcp_execution_needed": True,
+                        "tool": "mcp_github_create_or_update_file",
+                        "parameters": file_creation_data,
+                        "tool_error": str(tool_error)
+                    }
+            else:
+                print(f"   ⚠️ Not in VS Code environment - MCP tools not available")
+                return {
+                    "mcp_execution_needed": True,
+                    "tool": "mcp_github_create_or_update_file",
+                    "parameters": file_data,
+                    "error": "VS Code environment required for MCP tools"
+                }
+            
+        except Exception as e:
+            print(f"   ❌ Error in MCP file creation: {str(e)}")
+            return {
+                "error": f"MCP file creation failed: {str(e)}",
+                "mcp_execution_needed": True,
+                "tool": "mcp_github_create_or_update_file",
+                "parameters": file_data
+            }
 
 
 def main():
@@ -1561,3 +1927,4 @@ Automation Variables:
 
 if __name__ == "__main__":
     main()
+

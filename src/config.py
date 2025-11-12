@@ -91,11 +91,11 @@ class ConfigManager:
         """Load .env file if available."""
         if DOTENV_AVAILABLE and self.env_file.exists():
             load_dotenv(self.env_file)
-            print(f"✅ Loaded configuration from {self.env_file}")
+            print(f"[OK] Loaded configuration from {self.env_file}")
         elif self.env_file.exists():
-            print(f"⚠️ .env file found but python-dotenv not installed")
+            print(f"[WARNING] .env file found but python-dotenv not installed")
         else:
-            print(f"ℹ️ No .env file found, using environment variables and defaults")
+            print(f"[INFO] No .env file found, using environment variables and defaults")
     
     def _load_github_config(self) -> GitHubConfig:
         """Load GitHub configuration."""
