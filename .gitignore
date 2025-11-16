@@ -10,8 +10,14 @@ specs/features/
 specs/stories/
 specs/featurefiles/
 
-# Generated code directory
+# Generated code directory (ignore entire tree)
 code/
+
+# Deployment directory (ignore entire tree)
+deploy/
+
+# Documentation directory (ignore entire tree)
+docs/
 
 # Backup files from LangGraph migration
 prompttoproduct_old.py

@@ -118,6 +118,26 @@ prompts/
     └── fraud_detection.md      # Fraud detection examples
 
 ```
+### Mobile Banking App (Biometric) + Auth Service
+
+1. Start Auth Service (FastAPI)
+
+```powershell
+# From repository root
+pip install -r requirements.txt
+$env:AUTH_JWT_SECRET="change-me-strong" ; uvicorn code.MyBank.api.auth_service.auth_api:app --reload --port 8000
+```
+
+2. Run Mobile App (Expo)
+
+```powershell
+cd code/mobile-banking-app
+npm install
+$env:EXPO_PUBLIC_API_BASE_URL="http://localhost:8000/api/v1" ; npm run start
+```
+
+Demo login: `demo` / `ChangeMe123!`
+
 ### Example Prompts
 
 #### Epic Creation
@@ -170,38 +190,97 @@ python -m venv venv
 .\venv\Scripts\Activate.ps1
 
 ```
-### 📁 Code Organization
+### 📁 Updated Project Structure (Nov 2025)
 ```
-code/
-├── MyBank/                     # Banking domain implementations
-│   ├── loan_origination/       # Loan processing systems
-│   │   ├── general_model.py    # Banking domain models with repository patterns
-│   │   └── general_service.py  # Business logic with banking operations
-│   ├── payment_gateway/        # Payment processing
-│   ├── fraud_detection/        # Security systems
-│   └── compliance/             # Regulatory modules
-├── samples/                    # Code samples and examples
-├── tests/                      # Generated test framework (106 files)
-│   ├── epics/                  # Epic-level test suites (73 files)
-│   ├── features/               # Feature-level test suites (8 files)
-│   ├── stories/                # Story-level test suites (25 files)
-│   ├── banking/                # Banking domain-specific tests
-│   │   ├── loan_origination/   # Loan processing tests
-│   │   ├── credit_scoring/     # Credit assessment tests
-│   │   ├── risk_management/    # Risk analysis tests
-│   │   ├── kyc_aml/           # KYC/AML compliance tests
-│   │   ├── payment_processing/ # Payment system tests
-│   │   ├── regulatory_compliance/ # Regulatory tests
-│   │   ├── fraud_detection/    # Fraud prevention tests
-│   │   └── audit_logging/      # Audit and logging tests
-│   ├── integration/            # Cross-system integration tests
-│   ├── performance/            # Load and stress tests
-│   ├── security/               # Security validation tests
-│   └── compliance/             # Regulatory compliance tests
-└── docs/                       # Code documentation
-    ├── api/                    # API documentation
-    └── architecture/           # System design docs
+.
+├── prompttoproduct.py               # Main orchestrator (LangGraph routing)
+├── langgraph_demo.py                # Demo runner / sample workflow
+├── Agents.md                        # Unified agent system overview
+├── README.md                        # High-level project introduction
+├── requirements.txt                 # Python dependencies
+├── setup-environment.ps1            # PowerShell environment bootstrap
+├── orchestrator_memory.json         # Persisted session/orchestrator memory state
+│
+├── code/                            # Generated & domain implementation space (ignored in VCS per .gitignore)
+│   ├── README.md
+│   ├── docs/                        # Generated / supplemental documentation
+│   ├── MyBank/                      # Banking domain packages
+│   │   ├── accounts/                # Account lifecycle logic
+│   │   ├── api/                     # API service modules (FastAPI endpoints, auth, etc.)
+│   │   ├── compliance/              # Regulatory helpers & checks
+│   │   ├── credit_cards/            # Credit card domain logic
+│   │   ├── fraud_detection/         # Fraud & anomaly detection modules
+│   │   ├── general/                 # Shared banking models/services
+│   │   ├── investments/             # Investment product scaffolding
+│   │   ├── loans/                   # Loan origination & underwriting logic
+│   │   ├── payments/                # Payment processing abstractions
+│   │   ├── shared/                  # Cross-cutting utilities (config, adapters)
+│   │   └── tests/                   # Domain-level tests tied to generated specs
+│   ├── samples/                     # Example generated artifacts/snippets
+│   ├── tests/                       # (If present) additional generated test suites
+│   └── utils/                       # Helper utilities for code generation/runtime
+│
+├── specs/                           # Source-of-truth specifications (epics/features/stories)
+│   ├── prompt_schema.json           # Spec schema definition
+│   ├── schema_processor.py          # Spec parsing/validation logic
+│   ├── epics/                       # Epic markdown files (E001, E002, ...)
+│   ├── features/                    # Feature specs (linked to epics)
+│   ├── stories/                     # Story specs (implementation tasks)
+│   └── featurefiles/                # Legacy / intermediate spec artifacts
+│
+├── prompts/                         # Prompt templates & domain prompt library
+│   ├── banking/                     # Domain-specific prompt collections
+│   ├── system/                      # Orchestration/status/validation prompts
+│   └── examples/                    # End-to-end workflow examples
+│
+├── src/                             # Source code for agents & runtime logic
+│   ├── config.py                    # Central configuration (env, constants)
+│   ├── agents/                      # (If populated) explicit agent implementations
+│   ├── MyBank/                      # Core business logic (may mirror `code/` stable parts)
+│   └── utils/                       # Shared utilities for orchestrator & agents
+│
+├── tests/                           # Stable/manual test suites (non-generated)
+│   ├── epics/                       # Tests validating epic spec integrity
+│   ├── features/                    # Feature-level behavioral tests
+│   ├── stories/                     # Story implementation validation
+│   ├── banking/                     # Domain scenario tests
+│   ├── compliance/                  # Regulatory rule enforcement tests
+│   ├── integration/                 # Cross-module integration tests
+│   └── README.md                    # Test framework overview
+│
+├── docs/                            # Human-authored documentation (deployment, architecture)
+│   ├── deployment_guide.md          # Deployment & environment guidance
+│   └── architecture/ (if present)   # Architectural deep-dives
+│
+└── __pycache__/                     # Python cache directories
 ```
+
+#### Key Structural Conventions
+- `specs/` is authoritative; agents must never mutate spec files without versioning rules.
+- `prompts/` drives generation; changes here can alter downstream artifacts—treat as configuration.
+- `code/` is treated as a generated/workspace area and currently ignored by Git (per updated `.gitignore`) to prevent noise; promote stable modules to `src/` when hardened.
+- `tests/` distinguishes stable manually curated tests from generated domain tests inside `code/MyBank/tests/`.
+- `orchestrator_memory.json` enables continuity across sessions (routing decisions, artifact lineage).
+
+#### Evolution & Promotion Workflow
+1. Generate initial domain implementation in `code/MyBank/...`.
+2. Validate against specs + tests.
+3. Promote hardened modules into `src/MyBank/` for long-term maintenance.
+4. Update or backfill tests in root `tests/` to ensure stability outside regeneration cycles.
+
+#### Spec Linking
+- Each epic (e.g., `specs/epics/E001-*.md`) should reference associated features and story IDs.
+- Features and stories must back-reference their parent epic ID for traceability.
+- Validation agent emits coverage metrics mapping spec sections → code modules.
+
+#### Ignored Directories
+- `code/`, `deploy/`, `docs/` (per `.gitignore` adjustments) to reduce commit surface; selectively stage promotions only.
+
+#### Recommended Next Additions
+- `CONTRIBUTING.md` (if absent) cross-linking Agents.md guidelines.
+- `SECURITY.md` enumerating compliance control mapping strategy.
+- `specs/index.json` for quick artifact discovery & lineage API.
+
 ##  Learning & Best Practices
 
 ### Best Practices for Prompts
