@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobile Fund Transfer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="transfer" aria-labelledby="transfer-title">
+    <h1 id="transfer-title">Fund Transfer</h1>
+    <div id="error-summary" class="error-summary" aria-live="polite" hidden></div>
+
+    <form id="transfer-form" novalidate>
+      <fieldset class="form-section">
+        <legend class="sr-only">Transfer Details</legend>
+
+        <div class="form-group" id="group-from-account">
+          <label for="fromAccount">From Account</label>
+          <select id="fromAccount" name="fromAccount" aria-required="true">
+            <option value="">Select source account</option>
+            <option value="CHK-001">Checking ••••001</option>
+            <option value="SAV-002">Savings ••••002</option>
+          </select>
+          <p class="error" id="error-fromAccount" role="alert" hidden></p>
+        </div>
+
+        <div class="form-group" id="group-to-account">
+          <label for="toAccount">Beneficiary Account</label>
+          <input id="toAccount" name="toAccount" pattern="[A-Za-z0-9]{10,14}" maxlength="14" placeholder="e.g. BEN1234567" aria-required="true" />
+          <p class="hint">10–14 letters or digits, no spaces.</p>
+          <p class="error" id="error-toAccount" role="alert" hidden></p>
+        </div>
+
+        <div class="form-group" id="group-amount">
+          <label for="amount">Amount (USD)</label>
+            <input id="amount" name="amount" inputmode="decimal" placeholder="0.00" aria-required="true" />
+            <p class="error" id="error-amount" role="alert" hidden></p>
+        </div>
+
+        <div class="form-group" id="group-date">
+          <label for="transferDate">Transfer Date</label>
+          <input type="date" id="transferDate" name="transferDate" />
+          <p class="error" id="error-transferDate" role="alert" hidden></p>
+        </div>
+
+        <div class="form-group" id="group-description">
+          <label for="description">Description (optional)</label>
+          <textarea id="description" name="description" rows="2" maxlength="140" placeholder="Add a note (max 140 chars)"></textarea>
+          <p class="error" id="error-description" role="alert" hidden></p>
+        </div>
+
+        <button type="submit" class="btn-primary" id="continueBtn">Continue</button>
+      </fieldset>
+    </form>
+
+    <section id="confirmation" class="confirmation" hidden aria-labelledby="confirm-title">
+      <h2 id="confirm-title">Confirm Transfer</h2>
+      <dl id="confirm-details"></dl>
+      <div class="confirm-actions">
+        <button id="editBtn" class="btn-secondary" type="button">Edit</button>
+        <button id="finishBtn" class="btn-primary" type="button">Finish</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
